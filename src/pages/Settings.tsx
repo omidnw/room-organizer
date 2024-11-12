@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings as SettingsIcon, Palette, Bell, Layout } from 'lucide-react';
+import { Settings as SettingsIcon, Palette, Bell, Layout, Globe } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Card from '../components/ui/Card';
 import ThemeSection from '../components/settings/sections/ThemeSection';
 import NotificationSection from '../components/settings/sections/NotificationSection';
 import AppearanceSection from '../components/settings/sections/AppearanceSection';
+import LocalizationSection from '../components/settings/sections/LocalizationSection';
 
-type SettingsSection = 'theme' | 'notifications' | 'appearance';
+type SettingsSection = 'theme' | 'notifications' | 'appearance' | 'localization';
 
 interface SettingsTab {
   id: SettingsSection;
@@ -36,6 +37,12 @@ const settingsTabs: SettingsTab[] = [
     icon: Layout,
     description: 'Adjust the app layout and animations',
   },
+  {
+    id: 'localization',
+    label: 'Localization',
+    icon: Globe,
+    description: 'Configure timezone settings',
+  },
 ];
 
 function Settings() {
@@ -58,6 +65,8 @@ function Settings() {
             setCompactMode={setCompactMode}
           />
         );
+      case 'localization':
+        return <LocalizationSection />;
       default:
         return null;
     }

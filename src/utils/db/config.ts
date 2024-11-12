@@ -37,10 +37,17 @@ interface InventoryDB extends DBSchema {
       timestamp: Date;
     };
   };
+  settings: {
+    key: string;
+    value: {
+      timezone: string;
+      // Add other settings here in the future
+    };
+  };
 }
 
 export const DB_NAME = 'home-inventory';
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 
 export async function initializeDB(): Promise<IDBPDatabase<InventoryDB>> {
   const db = await openDB<InventoryDB>(DB_NAME, DB_VERSION, {
@@ -61,6 +68,11 @@ export async function initializeDB(): Promise<IDBPDatabase<InventoryDB>> {
       // Migrations store
       if (!db.objectStoreNames.contains('migrations')) {
         db.createObjectStore('migrations', { keyPath: 'version' });
+      }
+
+      // Settings store
+      if (!db.objectStoreNames.contains('settings')) {
+        db.createObjectStore('settings', { keyPath: 'key' });
       }
     },
   });

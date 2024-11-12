@@ -45,6 +45,17 @@ export const categoryOperations = {
     const db = await getDB();
     return db.getAllFromIndex('categories', 'by-name');
   },
+
+  async search(query: string): Promise<Category[]> {
+    const db = await getDB();
+    const allCategories = await db.getAllFromIndex('categories', 'by-name');
+    const searchLower = query.toLowerCase();
+    
+    return allCategories.filter(category => 
+      category.name.toLowerCase().includes(searchLower) ||
+      category.description?.toLowerCase().includes(searchLower)
+    );
+  },
 };
 
 // Item Operations

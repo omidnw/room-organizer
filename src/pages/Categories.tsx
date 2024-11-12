@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Card from '../components/ui/Card';
+import CategoryFilters from '../components/categories/CategoryFilters';
 import CreateCategoryModal from '../components/categories/modals/CreateCategoryModal';
 import EditCategoryModal from '../components/categories/modals/EditCategoryModal';
 import DeleteCategoryModal from '../components/categories/modals/DeleteCategoryModal';
@@ -24,6 +25,7 @@ function Categories({ mode }: CategoryProps) {
   // State management
   const [categories, setCategories] = useState<Category[]>([]);
   const [itemCounts, setItemCounts] = useState<Record<string, number>>({});
+  const [search, setSearch] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -31,7 +33,9 @@ function Categories({ mode }: CategoryProps) {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const loadedCategories = await categoryOperations.getAll();
+        const loadedCategories = search 
+          ? await categoryOperations.search(search)
+          : await categoryOperations.getAll();
         setCategories(loadedCategories);
 
         // Get item counts for each category
@@ -50,7 +54,7 @@ function Categories({ mode }: CategoryProps) {
     };
 
     loadData();
-  }, [showNotification]);
+  }, [search, showNotification]);
 
   // Get current category for edit/delete
   const currentCategory = id ? categories.find(cat => cat.id === id) : undefined;
@@ -145,6 +149,14 @@ function Categories({ mode }: CategoryProps) {
             </motion.button>
           </div>
 
+          {/* Search Filters */}
+          <div className="mb-8">
+            <CategoryFilters
+              search={search}
+              onSearchChange={setSearch}
+            />
+          </div>
+
           {/* Categories Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {categories.map((category) => (
@@ -198,9 +210,18 @@ function Categories({ mode }: CategoryProps) {
           </div>
 
           {/* Empty State */}
-          {categories.length === 0 && (
+          {categories.length === 0 && !isLoading && (
             <div className="text-center py-12">
-              <p className="text-textSecondary">No categories found</p>
+              <p className="text-textSecondary">
+                {search ? 'No categories found matching your search' : 'No categories found'}
+              </p>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {isLoading && (
+            <div className="text-center py-12">
+              <p className="text-textSecondary">Loading categories...</p>
             </div>
           )}
 
