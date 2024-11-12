@@ -7,25 +7,37 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      injectRegister: 'auto',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json,vue,txt,woff2}'],
+        cleanupOutdatedCaches: true,
+        sourcemap: true,
+      },
       manifest: {
-        name: 'Home Inventory App',
+        name: 'Home Inventory',
         short_name: 'Inventory',
-        description: 'A home inventory management application',
-        theme_color: '#ffffff',
+        description: 'Manage your home inventory efficiently',
+        theme_color: '#2563eb',
+        background_color: '#ffffff',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: 'icons/icon-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'icons/icon-512x512.png',
             sizes: '512x512',
-            type: 'image/png'
-          }
-        ]
-      }
+            type: 'image/png',
+          },
+          {
+            src: 'icons/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable',
+          },
+        ],
+      },
     })
   ]
 })

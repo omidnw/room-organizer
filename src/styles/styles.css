@@ -2,13 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --color-primary: #1e3a8a; /* Blue */
-  --color-secondary: #2563eb; /* Light Blue */
-  --color-background: #f3f4f6; /* Light Gray */
-  --color-text-primary: #1f2937; /* Dark Gray */
-  --color-text-secondary: #4b5563; /* Medium Gray */
-  --color-white: #ffffff;
+/* Light Theme - Clean & Professional */
+.theme-light {
+  --color-primary: #007BFF; /* Brighter blue for better visibility */
+  --color-secondary: #28A745; /* A more vibrant green */
+  --color-accent: #6C757D; /* Neutral gray for accents */
+  --color-background: #FFFFFF; /* White background for clarity */
+  --color-surface: #F8F9FA; /* Light gray surface */
+  --color-text-primary: #212529; /* Darker text for improved contrast */
+  --color-text-secondary: #495057; /* Medium gray for secondary text */
+  --color-border: #CED4DA; /* Soft gray border */
+  --color-error: #DC3545; /* Red for errors */
+  --color-success: #28A745; /* Green for success messages */
+  --color-warning: #F59E0B;
+}
+
+/* Dark Theme - Modern & Sleek */
+.theme-dark {
+  --color-primary: #3B82F6;
+  --color-secondary: #10B981;
+  --color-accent: #60A5FA;
+  --color-background: #111827;
+  --color-surface: #1F2937;
+  --color-text-primary: #F9FAFB;
+  --color-text-secondary: #9CA3AF;
+  --color-border: #374151;
+  --color-error: #EF4444;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+}
+
+/* Midnight Theme - Deep & Rich */
+.theme-midnight {
+  --color-primary: #8B5CF6;
+  --color-secondary: #EC4899;
+  --color-accent: #A78BFA;
+  --color-background: #0F172A;
+  --color-surface: #1E293B;
+  --color-text-primary: #F8FAFC;
+  --color-text-secondary: #94A3B8;
+  --color-border: #334155;
+  --color-error: #EF4444;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+}
+
+/* Sunset Theme - Warm & Vibrant */
+.theme-sunset {
+  --color-primary: #F59E0B;
+  --color-secondary: #D97706;
+  --color-accent: #FBBF24;
+  --color-background: #FFFBEB;
+  --color-surface: #FFFFFF;
+  --color-text-primary: #78350F;
+  --color-text-secondary: #92400E;
+  --color-border: #FDE68A;
+  --color-error: #DC2626;
+  --color-success: #059669;
+  --color-warning: #F59E0B;
 }
 
 body {
@@ -31,4 +82,8 @@ button {
 a {
   text-decoration: none;
   color: inherit;
+}
+
+.transition-colors {
+  transition: all 0.3s ease;
 } 

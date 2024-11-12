@@ -1,82 +1,161 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { 
+  Home,
+  Package,
+  Grid,
+  BarChart2,
+  Settings,
+  Menu,
+  X,
+  LucideIcon 
+} from 'lucide-react';
+
+// Define menu item type for better type safety
+interface MenuItem {
+  title: string;
+  href: string;
+  icon: LucideIcon;
+  description?: string;
+}
+
+// Menu items configuration
+const menuItems: MenuItem[] = [
+  { 
+    title: 'Home',
+    href: '/',
+    icon: Home,
+    description: 'Dashboard overview'
+  },
+  { 
+    title: 'Inventory',
+    href: '/inventory',
+    icon: Package,
+    description: 'Manage your items'
+  },
+  { 
+    title: 'Categories',
+    href: '/categories',
+    icon: Grid,
+    description: 'Organize items by category'
+  },
+  { 
+    title: 'Reports',
+    href: '/reports',
+    icon: BarChart2,
+    description: 'View analytics and reports'
+  },
+  { 
+    title: 'Settings',
+    href: '/settings',
+    icon: Settings,
+    description: 'Customize your experience'
+  },
+];
 
 function HamburgerMenu() {
+  // State management
   const [isOpen, setIsOpen] = useState(false);
 
+  // Event handlers
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
+  // Render menu item
+  const renderMenuItem = (item: MenuItem) => (
+    <motion.div key={item.title} whileHover={{ x: 4 }}>
+      <Link
+        to={item.href}
+        onClick={toggleMenu}
+        className="flex items-center px-4 py-3 text-lg font-medium rounded-lg transition-colors hover:bg-background text-textPrimary hover:text-primary group"
+        aria-label={item.description}
+      >
+        <item.icon className="w-5 h-5 mr-3 text-textSecondary group-hover:text-primary transition-colors" />
+        {item.title}
+      </Link>
+    </motion.div>
+  );
+
   return (
     <div className="relative">
-      <button
-        className="flex items-center justify-center w-10 h-10 bg-primary text-white rounded-md focus:outline-none"
+      {/* Hamburger Button */}
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-background text-textSecondary hover:text-primary transition-colors"
         onClick={toggleMenu}
+        aria-label={isOpen ? 'Close menu' : 'Open menu'}
       >
-        <span className="sr-only">Open main menu</span>
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d={isOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16m-7 6h7'}
-          />
-        </svg>
-      </button>
+        <Menu className="w-5 h-5" />
+      </motion.button>
+
+      {/* Menu Panel */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed top-0 right-0 w-64 h-full bg-white shadow-lg z-10"
-          >
-            <div className="p-4">
-              <button
-                className="flex items-center justify-center w-10 h-10 bg-primary text-white rounded-md focus:outline-none"
-                onClick={toggleMenu}
-              >
-                <span className="sr-only">Close menu</span>
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-              <nav className="mt-8 space-y-4">
-                <a href="#" className="block px-4 py-2 text-lg font-medium text-gray-800 hover:bg-gray-100 rounded-md transition">
-                  Home
-                </a>
-                <a href="#" className="block px-4 py-2 text-lg font-medium text-gray-800 hover:bg-gray-100 rounded-md transition">
-                  About
-                </a>
-                <a href="#" className="block px-4 py-2 text-lg font-medium text-gray-800 hover:bg-gray-100 rounded-md transition">
-                  Contact
-                </a>
-              </nav>
-            </div>
-          </motion.div>
+          <>
+            {/* Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black z-40"
+              onClick={toggleMenu}
+            />
+            
+            {/* Menu Content */}
+            <motion.div
+              initial={{ x: '100%', opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: '100%', opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              style={{ backgroundColor: 'var(--color-surface)' }}
+              className="fixed top-0 right-0 w-72 h-screen shadow-xl z-50"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Navigation menu"
+            >
+              <div className="h-full flex flex-col" style={{ backgroundColor: 'var(--color-surface)' }}>
+                {/* Menu Header */}
+                <div className="p-6 border-b" style={{ borderColor: 'var(--color-border)' }}>
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Menu</h2>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={toggleMenu}
+                      className="p-2 rounded-lg hover:bg-background text-textSecondary hover:text-primary transition-colors"
+                      aria-label="Close menu"
+                    >
+                      <X className="w-5 h-5" />
+                    </motion.button>
+                  </div>
+                </div>
+
+                {/* Menu Items */}
+                <nav className="flex-1 p-6" role="navigation">
+                  <div className="space-y-2">
+                    {menuItems.map(renderMenuItem)}
+                  </div>
+                </nav>
+
+                {/* Menu Footer */}
+                <div className="p-6 border-t" style={{ 
+                  borderColor: 'var(--color-border)',
+                  backgroundColor: 'var(--color-surface)'
+                }}>
+                  <p className="text-sm text-center text-textSecondary">
+                    Home Inventory v1.0
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>
   );
 }
 
-export default HamburgerMenu; 
+export default HamburgerMenu;
