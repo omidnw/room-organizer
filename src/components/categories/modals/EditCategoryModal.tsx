@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Package } from 'lucide-react';
 import Modal from '../../ui/Modal';
 import CategoryForm from '../CategoryForm';
 import { CategoryFormData } from '../../../types/inventory';

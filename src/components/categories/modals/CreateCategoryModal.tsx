@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Package } from 'lucide-react';
 import Modal from '../../ui/Modal';
 import CategoryForm from '../CategoryForm';
 import { CategoryFormData } from '../../../types/inventory';
@@ -9,9 +10,10 @@ interface CreateCategoryModalProps {
   isOpen: boolean;
   onSubmit: (data: CategoryFormData) => Promise<void>;
   isSubmitting: boolean;
+  onClose?: () => void;
 }
 
-function CreateCategoryModal({ isOpen, onSubmit, isSubmitting }: CreateCategoryModalProps) {
+function CreateCategoryModal({ isOpen, onSubmit, isSubmitting, onClose }: CreateCategoryModalProps) {
   const navigate = useNavigate();
   const { showNotification } = useNotification();
 
@@ -25,10 +27,18 @@ function CreateCategoryModal({ isOpen, onSubmit, isSubmitting }: CreateCategoryM
     }
   };
 
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      navigate('/categories');
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
-      onClose={() => navigate('/categories')}
+      onClose={handleClose}
       title="Add New Category"
     >
       <CategoryForm

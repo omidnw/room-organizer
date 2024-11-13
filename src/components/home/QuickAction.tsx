@@ -1,38 +1,33 @@
 import React from 'react';
+import { motion } from 'framer-motion';
+import { LucideIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { 
-  PlusCircle, 
-  Grid, 
-  Clock, 
-  BarChart3,
-  LucideIcon 
-} from 'lucide-react';
-
-const iconMap: Record<string, LucideIcon> = {
-  plus: PlusCircle,
-  grid: Grid,
-  clock: Clock,
-  chart: BarChart3,
-};
 
 interface QuickActionProps {
   title: string;
-  icon: string;
-  link: string;
+  description?: string;
+  icon: LucideIcon;
+  href: string;
 }
 
-function QuickAction({ title, icon, link }: QuickActionProps) {
-  const Icon = iconMap[icon];
-
+function QuickAction({ title, description, icon: Icon, href }: QuickActionProps) {
   return (
-    <Link 
-      to={link}
-      className="p-4 rounded-lg hover:bg-background transition-colors text-center group"
-    >
-      <div className="w-12 h-12 mx-auto mb-2 bg-primary/10 rounded-full flex items-center justify-center text-primary group-hover:bg-primary/20 transition-colors">
-        {Icon && <Icon size={24} />}
-      </div>
-      <span className="text-textPrimary font-medium">{title}</span>
+    <Link to={href}>
+      <motion.div
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className="bg-surface p-6 rounded-lg border border-border hover:border-primary transition-colors cursor-pointer"
+      >
+        <div className="flex flex-col items-center text-center">
+          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+            <Icon className="w-6 h-6 text-primary" />
+          </div>
+          <p className="text-sm font-medium text-textPrimary">{title}</p>
+          {description && (
+            <p className="text-xs text-textSecondary mt-1">{description}</p>
+          )}
+        </div>
+      </motion.div>
     </Link>
   );
 }

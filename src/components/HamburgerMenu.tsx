@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
@@ -12,7 +12,6 @@ import {
   LucideIcon 
 } from 'lucide-react';
 
-// Define menu item type for better type safety
 interface MenuItem {
   title: string;
   href: string;
@@ -20,7 +19,6 @@ interface MenuItem {
   description?: string;
 }
 
-// Menu items configuration
 const menuItems: MenuItem[] = [
   { 
     title: 'Home',
@@ -29,132 +27,112 @@ const menuItems: MenuItem[] = [
     description: 'Dashboard overview'
   },
   { 
-    title: 'Inventory',
-    href: '/inventory',
+    title: 'Items',
+    href: '/items',
     icon: Package,
-    description: 'Manage your items'
+    description: 'Browse your items'
   },
   { 
     title: 'Categories',
     href: '/categories',
     icon: Grid,
-    description: 'Organize items by category'
+    description: 'Manage categories'
   },
   { 
     title: 'Reports',
     href: '/reports',
     icon: BarChart2,
-    description: 'View analytics and reports'
+    description: 'View reports'
   },
   { 
     title: 'Settings',
     href: '/settings',
     icon: Settings,
-    description: 'Customize your experience'
-  },
+    description: 'Configure app settings'
+  }
 ];
 
-function HamburgerMenu() {
-  // State management
-  const [isOpen, setIsOpen] = useState(false);
+interface HamburgerMenuProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-  // Event handlers
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
-
-  // Render menu item
+function HamburgerMenu({ isOpen, onClose }: HamburgerMenuProps) {
   const renderMenuItem = (item: MenuItem) => (
-    <motion.div key={item.title} whileHover={{ x: 4 }}>
-      <Link
-        to={item.href}
-        onClick={toggleMenu}
-        className="flex items-center px-4 py-3 text-lg font-medium rounded-lg transition-colors hover:bg-background text-textPrimary hover:text-primary group"
-        aria-label={item.description}
+    <Link 
+      key={item.href} 
+      to={item.href}
+      onClick={onClose}
+    >
+      <motion.div
+        whileHover={{ x: 4 }}
+        className="flex items-center p-4 rounded-lg hover:bg-background text-textSecondary hover:text-primary transition-colors"
       >
-        <item.icon className="w-5 h-5 mr-3 text-textSecondary group-hover:text-primary transition-colors" />
-        {item.title}
-      </Link>
-    </motion.div>
+        <item.icon className="w-5 h-5 mr-3" />
+        <div>
+          <p className="font-medium text-textPrimary">{item.title}</p>
+          {item.description && (
+            <p className="text-sm text-textSecondary">{item.description}</p>
+          )}
+        </div>
+      </motion.div>
+    </Link>
   );
 
   return (
-    <div className="relative">
-      {/* Hamburger Button */}
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-background text-textSecondary hover:text-primary transition-colors"
-        onClick={toggleMenu}
-        aria-label={isOpen ? 'Close menu' : 'Open menu'}
-      >
-        <Menu className="w-5 h-5" />
-      </motion.button>
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+          />
 
-      {/* Menu Panel */}
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            {/* Overlay */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.4 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black z-40"
-              onClick={toggleMenu}
-            />
-            
-            {/* Menu Content */}
-            <motion.div
-              initial={{ x: '100%', opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: '100%', opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              style={{ backgroundColor: 'var(--color-surface)' }}
-              className="fixed top-0 right-0 w-72 h-screen shadow-xl z-50"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Navigation menu"
-            >
-              <div className="h-full flex flex-col" style={{ backgroundColor: 'var(--color-surface)' }}>
-                {/* Menu Header */}
-                <div className="p-6 border-b" style={{ borderColor: 'var(--color-border)' }}>
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Menu</h2>
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={toggleMenu}
-                      className="p-2 rounded-lg hover:bg-background text-textSecondary hover:text-primary transition-colors"
-                      aria-label="Close menu"
-                    >
-                      <X className="w-5 h-5" />
-                    </motion.button>
-                  </div>
-                </div>
-
-                {/* Menu Items */}
-                <nav className="flex-1 p-6" role="navigation">
-                  <div className="space-y-2">
-                    {menuItems.map(renderMenuItem)}
-                  </div>
-                </nav>
-
-                {/* Menu Footer */}
-                <div className="p-6 border-t" style={{ 
-                  borderColor: 'var(--color-border)',
-                  backgroundColor: 'var(--color-surface)'
-                }}>
-                  <p className="text-sm text-center text-textSecondary">
-                    Home Inventory v1.0
-                  </p>
-                </div>
+          {/* Menu Panel */}
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: "spring", damping: 20 }}
+            className="fixed inset-y-0 right-0 w-80 bg-surface shadow-xl z-50 flex flex-col"
+            style={{ backgroundColor: 'var(--color-surface)' }}
+          >
+            {/* Menu Header */}
+            <div className="p-4 border-b border-border">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-textPrimary">Menu</h2>
+                <button
+                  onClick={onClose}
+                  className="p-2 rounded-lg hover:bg-background text-textSecondary hover:text-primary transition-colors"
+                  aria-label="Close menu"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </div>
+            </div>
+
+            {/* Menu Items */}
+            <nav className="flex-1 overflow-y-auto p-4 bg-surface">
+              <div className="space-y-2">
+                {menuItems.map(renderMenuItem)}
+              </div>
+            </nav>
+
+            {/* Menu Footer */}
+            <div className="p-4 border-t border-border bg-surface">
+              <p className="text-sm text-center text-textSecondary">
+                Room Organizer v1.0
+              </p>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }
 

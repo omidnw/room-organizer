@@ -1,16 +1,23 @@
 import { z } from 'zod';
 
-// Category Schema
-export const CategorySchema = z.object({
-  id: z.string(),
-  name: z.string().min(1, 'Category name is required'),
+// Category Schemas
+export const CategoryFormSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
-  color: z.string().optional(),
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional(),
+  color: z.string().min(1, 'Color is required'),
+  parentId: z.string().optional(),
+  isFolder: z.boolean().default(false),
 });
 
-// Item Form Schema (for create/update)
+export const CategorySchema = CategoryFormSchema.extend({
+  id: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  path: z.array(z.string()),
+  level: z.number(),
+});
+
+// Item Schemas
 export const ItemFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   categoryId: z.string().min(1, 'Category is required'),
@@ -22,7 +29,6 @@ export const ItemFormSchema = z.object({
   image: z.string().optional(),
 });
 
-// Full Item Schema (includes system fields)
 export const ItemSchema = ItemFormSchema.extend({
   id: z.string(),
   createdAt: z.date(),
@@ -30,5 +36,6 @@ export const ItemSchema = ItemFormSchema.extend({
 });
 
 export type Category = z.infer<typeof CategorySchema>;
+export type CategoryFormData = z.infer<typeof CategoryFormSchema>;
 export type Item = z.infer<typeof ItemSchema>;
 export type ItemFormData = z.infer<typeof ItemFormSchema>; 

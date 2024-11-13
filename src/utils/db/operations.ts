@@ -7,12 +7,28 @@ export const categoryOperations = {
   async create(category: Omit<Category, 'id'>): Promise<Category> {
     const db = await getDB();
     const id = uuidv4();
+    
+    // Calculate path and level
+    let path: string[] = [];
+    let level = 0;
+    
+    if (category.parentId) {
+      const parent = await this.getById(category.parentId);
+      if (parent) {
+        path = [...parent.path, parent.id];
+        level = parent.level + 1;
+      }
+    }
+
     const newCategory = {
       id,
       ...category,
+      path,
+      level,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
+
     await db.add('categories', newCategory);
     return newCategory;
   },
@@ -56,6 +72,30 @@ export const categoryOperations = {
       category.description?.toLowerCase().includes(searchLower)
     );
   },
+
+  async getChildren(parentId: string | null): Promise<Category[]> {
+    const db = await getDB();
+    const allCategories = await db.getAllFromIndex('categories', 'by-name');
+    return allCategories.filter(cat => cat.parentId === parentId);
+  },
+
+  async getPath(categoryId: string): Promise<Category[]> {
+    const db = await getDB();
+    const category = await this.getById(categoryId);
+    if (!category) return [];
+
+    const path = await Promise.all(
+      category.path.map(id => this.getById(id))
+    );
+
+    return path.filter((cat): cat is Category => cat !== undefined);
+  },
+
+  async getDescendants(categoryId: string): Promise<Category[]> {
+    const db = await getDB();
+    const allCategories = await db.getAllFromIndex('categories', 'by-name');
+    return allCategories.filter(cat => cat.path.includes(categoryId));
+  },
 };
 
 // Item Operations
@@ -97,14 +137,44 @@ export const itemOperations = {
     return db.get('items', id);
   },
 
-  async getAll(): Promise<Item[]> {
+  async getByCategory(categoryId: string, options?: { page?: number; limit?: number; includeSubcategories?: boolean }): Promise<Item[]> {
     const db = await getDB();
-    return db.getAllFromIndex('items', 'by-name');
+    let items: Item[] = [];
+
+    if (options?.includeSubcategories) {
+      // Get all descendant categories
+      const descendants = await categoryOperations.getDescendants(categoryId);
+      const categoryIds = [categoryId, ...descendants.map(cat => cat.id)];
+      
+      // Get items from all categories
+      for (const catId of categoryIds) {
+        const categoryItems = await db.getAllFromIndex('items', 'by-category', catId);
+        items = [...items, ...categoryItems];
+      }
+    } else {
+      items = await db.getAllFromIndex('items', 'by-category', categoryId);
+    }
+
+    if (options?.page && options?.limit) {
+      const start = (options.page - 1) * options.limit;
+      const end = start + options.limit;
+      return items.slice(start, end);
+    }
+    
+    return items;
   },
 
-  async getByCategory(categoryId: string): Promise<Item[]> {
+  async getAll(options?: { page?: number; limit?: number }): Promise<Item[]> {
     const db = await getDB();
-    return db.getAllFromIndex('items', 'by-category', categoryId);
+    const allItems = await db.getAllFromIndex('items', 'by-name');
+    
+    if (options?.page && options?.limit) {
+      const start = (options.page - 1) * options.limit;
+      const end = start + options.limit;
+      return allItems.slice(start, end);
+    }
+    
+    return allItems;
   },
 
   async search(query: string): Promise<Item[]> {
@@ -116,6 +186,26 @@ export const itemOperations = {
       item.description?.toLowerCase().includes(searchLower)
     );
   },
+
+  async searchInCategory(categoryId: string, query: string, options?: { page?: number; limit?: number }): Promise<Item[]> {
+    const db = await getDB();
+    const items = await db.getAllFromIndex('items', 'by-category', categoryId);
+    
+    const searchLower = query.toLowerCase();
+    const filteredItems = items.filter(item => 
+      item.name.toLowerCase().includes(searchLower) ||
+      item.description?.toLowerCase().includes(searchLower) ||
+      item.notes?.toLowerCase().includes(searchLower)
+    );
+
+    if (options?.page && options?.limit) {
+      const start = (options.page - 1) * options.limit;
+      const end = start + options.limit;
+      return filteredItems.slice(start, end);
+    }
+    
+    return filteredItems;
+  },
 };
 
 // Helper functions
@@ -125,27 +215,61 @@ export const dbHelpers = {
     const categories = await categoryOperations.getAll();
     
     if (categories.length === 0) {
-      // Add default categories
+      // Create main storage folders
+      const storage = await categoryOperations.create({
+        name: 'Storage',
+        color: '#3B82F6',
+        description: 'Main storage areas',
+        isFolder: true
+      });
+
+      const furniture = await categoryOperations.create({
+        name: 'Furniture',
+        color: '#10B981',
+        description: 'Furniture storage',
+        isFolder: true
+      });
+
+      // Add subcategories
       await Promise.all([
-        categoryOperations.create({ 
-          name: 'Electronics',
-          color: '#3B82F6',
-          description: 'Electronic devices and gadgets'
+        // Storage subcategories
+        categoryOperations.create({
+          name: 'Storage Boxes',
+          color: '#F97316',
+          description: 'Items in storage boxes',
+          parentId: storage.id
         }),
-        categoryOperations.create({ 
-          name: 'Furniture',
+        categoryOperations.create({
+          name: 'Wall Shelves',
+          color: '#14B8A6',
+          description: 'Items on wall-mounted shelves',
+          parentId: storage.id
+        }),
+
+        // Furniture subcategories
+        categoryOperations.create({
+          name: 'Desk Drawers',
           color: '#10B981',
-          description: 'Home and office furniture'
+          description: 'Items in desk drawers',
+          parentId: furniture.id
         }),
-        categoryOperations.create({ 
-          name: 'Kitchen',
+        categoryOperations.create({
+          name: 'Wardrobe',
           color: '#F59E0B',
-          description: 'Kitchen appliances and utensils'
+          description: 'Clothes and items in wardrobe',
+          parentId: furniture.id
         }),
-        categoryOperations.create({ 
-          name: 'Books',
+        categoryOperations.create({
+          name: 'Bedside Cabinet',
           color: '#8B5CF6',
-          description: 'Books and publications'
+          description: 'Items in bedside drawers',
+          parentId: furniture.id
+        }),
+        categoryOperations.create({
+          name: 'Under-bed Storage',
+          color: '#EC4899',
+          description: 'Items stored under the bed',
+          parentId: furniture.id
         }),
       ]);
     }

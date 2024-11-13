@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Package } from 'lucide-react';
+import { Plus, Package, ArrowLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -9,20 +9,19 @@ import CategoryFilters from '../components/categories/CategoryFilters';
 import CreateCategoryModal from '../components/categories/modals/CreateCategoryModal';
 import EditCategoryModal from '../components/categories/modals/EditCategoryModal';
 import DeleteCategoryModal from '../components/categories/modals/DeleteCategoryModal';
-import { CategoryFormData, Category } from '../types/inventory';
+import { Category, CategoryFormData } from '../types/inventory';
 import { categoryOperations, itemOperations } from '../utils/db/operations';
 import { useNotification } from '../contexts/NotificationContext';
 
-interface CategoryProps {
+interface CategoriesProps {
   mode?: 'create' | 'edit' | 'delete';
 }
 
-function Categories({ mode }: CategoryProps) {
+function Categories({ mode }: CategoriesProps) {
   const navigate = useNavigate();
   const { id } = useParams();
   const { showNotification } = useNotification();
 
-  // State management
   const [categories, setCategories] = useState<Category[]>([]);
   const [itemCounts, setItemCounts] = useState<Record<string, number>>({});
   const [search, setSearch] = useState('');
@@ -134,8 +133,20 @@ function Categories({ mode }: CategoryProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <h2 className="text-2xl font-bold text-textPrimary">Categories</h2>
-              <p className="text-textSecondary">Manage your item categories</p>
+              <div className="flex items-center space-x-4">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate('/items')}
+                  className="p-2 rounded-lg hover:bg-surface text-textSecondary hover:text-primary transition-colors"
+                >
+                  <ArrowLeft className="w-6 h-6" />
+                </motion.button>
+                <div>
+                  <h2 className="text-2xl font-bold text-textPrimary">Categories</h2>
+                  <p className="text-textSecondary">Manage your room categories</p>
+                </div>
+              </div>
             </motion.div>
 
             <motion.button

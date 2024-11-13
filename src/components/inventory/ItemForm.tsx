@@ -2,22 +2,31 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ItemFormSchema, ItemFormData } from '../../types/inventory';
+import { useSettings } from '../../hooks/useSettings';
 
 interface ItemFormProps {
   onSubmit: (data: ItemFormData) => Promise<void>;
   initialData?: Partial<ItemFormData>;
   categories: { id: string; name: string }[];
   isSubmitting?: boolean;
+  categorySelect?: (props: {
+    value: string;
+    onChange: (value: string) => void;
+    error?: string;
+  }) => React.ReactNode;
 }
 
-function ItemForm({ onSubmit, initialData, categories, isSubmitting }: ItemFormProps) {
-  const { register, handleSubmit, formState: { errors } } = useForm<ItemFormData>({
+function ItemForm({ onSubmit, initialData, categories, isSubmitting, categorySelect }: ItemFormProps) {
+  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<ItemFormData>({
     resolver: zodResolver(ItemFormSchema),
     defaultValues: {
       ...initialData,
       purchaseDate: initialData?.purchaseDate || new Date().toISOString().split('T')[0],
     },
   });
+
+  const categoryId = watch('categoryId');
+  const { currency } = useSettings();
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -39,23 +48,33 @@ function ItemForm({ onSubmit, initialData, categories, isSubmitting }: ItemFormP
 
       {/* Category */}
       <div>
-        <label htmlFor="categoryId" className="block text-sm font-medium text-textPrimary mb-1">
-          Category
-        </label>
-        <select
-          id="categoryId"
-          {...register('categoryId')}
-          className="w-full px-4 py-2 bg-background border border-border rounded-lg text-textPrimary focus:outline-none focus:border-primary transition-colors"
-        >
-          <option value="">Select a category</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-        {errors.categoryId && (
-          <p className="mt-1 text-sm text-error">{errors.categoryId.message}</p>
+        {categorySelect ? (
+          categorySelect({
+            value: categoryId,
+            onChange: (value) => setValue('categoryId', value),
+            error: errors.categoryId?.message
+          })
+        ) : (
+          <>
+            <label htmlFor="categoryId" className="block text-sm font-medium text-textPrimary mb-1">
+              Category
+            </label>
+            <select
+              id="categoryId"
+              {...register('categoryId')}
+              className="w-full px-4 py-2 bg-background border border-border rounded-lg text-textPrimary focus:outline-none focus:border-primary transition-colors"
+            >
+              <option value="">Select a category</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            {errors.categoryId && (
+              <p className="mt-1 text-sm text-error">{errors.categoryId.message}</p>
+            )}
+          </>
         )}
       </div>
 
@@ -78,15 +97,20 @@ function ItemForm({ onSubmit, initialData, categories, isSubmitting }: ItemFormP
 
         <div>
           <label htmlFor="price" className="block text-sm font-medium text-textPrimary mb-1">
-            Price
+            Price ({currency})
           </label>
-          <input
-            type="number"
-            id="price"
-            step="0.01"
-            {...register('price', { valueAsNumber: true })}
-            className="w-full px-4 py-2 bg-background border border-border rounded-lg text-textPrimary focus:outline-none focus:border-primary transition-colors"
-          />
+          <div className="relative">
+            <input
+              type="number"
+              id="price"
+              step="0.01"
+              {...register('price', { valueAsNumber: true })}
+              className="w-full pl-8 pr-4 py-2 bg-background border border-border rounded-lg text-textPrimary focus:outline-none focus:border-primary transition-colors"
+            />
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-textSecondary">
+              {new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(1).charAt(0)}
+            </span>
+          </div>
           {errors.price && (
             <p className="mt-1 text-sm text-error">{errors.price.message}</p>
           )}
