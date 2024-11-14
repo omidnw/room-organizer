@@ -1,14 +1,9 @@
 // src/pages/Inventory.tsx
 
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Plus, ArrowLeft } from "lucide-react";
-import {
-	useNavigate,
-	useParams,
-	useLocation,
-	useSearchParams,
-} from "react-router-dom";
+import { useParams, useLocation, useSearchParams } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import ItemCard from "../components/inventory/ItemCard";
@@ -23,12 +18,7 @@ import DeleteItemModal from "../components/inventory/modals/DeleteItemModal";
 import DeleteCategoryModal from "../components/categories/modals/DeleteCategoryModal";
 import { useInventory } from "../hooks/useInventory";
 
-interface InventoryProps {
-	mode?: "create" | "edit" | "delete";
-	type?: "item" | "category";
-}
-
-function Inventory({ mode, type }: InventoryProps) {
+function Inventory() {
 	const { id } = useParams();
 	const [searchParams] = useSearchParams();
 	const location = useLocation();
@@ -76,17 +66,24 @@ function Inventory({ mode, type }: InventoryProps) {
 		handleRouteChange();
 	}, [id, searchParams, location.pathname]); // Only re-run when route-related props change
 
+	const handleSearchChange = (query: string) => {
+		inventory.handleSearch(query);
+	};
+
+	const handleSearchTypeChange = (type: "all" | "categories" | "items") => {
+		inventory.setSearchType(type);
+		inventory.handleSearch(inventory.search);
+	};
+
 	const categoriesToDisplay = inventory.currentCategory
 		? inventory.getSubcategories(inventory.currentCategory.id)
 		: inventory.getRootCategories();
 
-	const itemsToDisplay =
-		inventory.currentCategory && !inventory.currentCategory.isFolder
-			? inventory.items
-			: [];
+	const itemsToDisplay = inventory.currentCategory ? inventory.items : [];
 
-	const canCreateCategory =
-		!inventory.currentCategory || inventory.currentCategory.isFolder;
+	const isRootLevel = !inventory.currentCategory;
+	const canCreateCategory = true; // Can create categories at any level
+	const canCreateItem = !isRootLevel; // Can create items only in subcategories
 
 	return (
 		<div className="flex flex-col min-h-screen bg-background">
@@ -104,7 +101,7 @@ function Inventory({ mode, type }: InventoryProps) {
 									categoryPath={inventory.categoryPath}
 								/>
 								<div className="flex items-center space-x-4">
-									{inventory.currentCategory && (
+									{!isRootLevel && (
 										<motion.button
 											whileHover={{ scale: 1.05 }}
 											whileTap={{ scale: 0.95 }}
@@ -135,75 +132,69 @@ function Inventory({ mode, type }: InventoryProps) {
 									Add Category
 								</motion.button>
 							)}
-							{inventory.currentCategory &&
-								!inventory.currentCategory.isFolder && (
-									<motion.button
-										whileHover={{ scale: 1.05 }}
-										whileTap={{ scale: 0.95 }}
-										onClick={inventory.openCreateItemModal}
-										className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-									>
-										<Plus className="w-5 h-5 mr-2" />
-										Add Item
-									</motion.button>
-								)}
+							{canCreateItem && (
+								<motion.button
+									whileHover={{ scale: 1.05 }}
+									whileTap={{ scale: 0.95 }}
+									onClick={inventory.openCreateItemModal}
+									className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+								>
+									<Plus className="w-5 h-5 mr-2" />
+									Add Item
+								</motion.button>
+							)}
 						</div>
 					</div>
 
-					{inventory.view === "categories" && (
-						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-							{categoriesToDisplay.map((category) => (
-								<CategoryCard
-									key={category.id}
-									category={category}
-									itemCount={inventory.itemCounts[category.id] || 0}
-									subCategoryCount={
-										inventory.subCategoryCounts[category.id] || 0
-									}
-									onClick={() => inventory.handleCategoryClick(category.id)}
-									onEdit={() => inventory.openEditCategoryModal(category)}
-									onDelete={() => inventory.openDeleteCategoryModal(category)}
-								/>
-							))}
+					{!isRootLevel && (
+						<div className="mb-8">
+							<ItemFilters
+								search={inventory.search}
+								onSearchChange={handleSearchChange}
+								searchType={inventory.searchType}
+								onSearchTypeChange={handleSearchTypeChange}
+							/>
 						</div>
 					)}
 
-					{inventory.view === "items" && (
-						<>
-							<div className="mb-8">
-								<ItemFilters
-									search={inventory.search}
-									onSearchChange={inventory.handleSearch}
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+						{categoriesToDisplay.map((category) => (
+							<CategoryCard
+								key={category.id}
+								category={category}
+								itemCount={inventory.itemCounts[category.id] || 0}
+								subCategoryCount={inventory.subCategoryCounts[category.id] || 0}
+								onClick={() => inventory.handleCategoryClick(category.id)}
+								onEdit={() => inventory.openEditCategoryModal(category)}
+								onDelete={() => inventory.openDeleteCategoryModal(category)}
+							/>
+						))}
+						{!isRootLevel &&
+							itemsToDisplay.map((item) => (
+								<ItemCard
+									key={item.id}
+									item={item}
+									onEdit={() => inventory.openEditItemModal(item)}
+									onDelete={() => inventory.openDeleteItemModal(item)}
 								/>
-							</div>
+							))}
+					</div>
 
-							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-								{itemsToDisplay.map((item) => (
-									<ItemCard
-										key={item.id}
-										item={item}
-										onEdit={() => inventory.openEditItemModal(item)}
-										onDelete={() => inventory.openDeleteItemModal(item)}
-									/>
-								))}
+					{!isRootLevel &&
+						inventory.hasMore &&
+						!inventory.isLoading &&
+						inventory.items.length > 0 && (
+							<div className="flex justify-center mt-8">
+								<motion.button
+									whileHover={{ scale: 1.05 }}
+									whileTap={{ scale: 0.95 }}
+									onClick={inventory.handleLoadMore}
+									className="px-6 py-2 bg-surface border border-border rounded-lg text-textPrimary hover:border-primary transition-colors"
+								>
+									Load More
+								</motion.button>
 							</div>
-
-							{inventory.hasMore &&
-								!inventory.isLoading &&
-								inventory.items.length > 0 && (
-									<div className="flex justify-center mt-8">
-										<motion.button
-											whileHover={{ scale: 1.05 }}
-											whileTap={{ scale: 0.95 }}
-											onClick={inventory.handleLoadMore}
-											className="px-6 py-2 bg-surface border border-border rounded-lg text-textPrimary hover:border-primary transition-colors"
-										>
-											Load More
-										</motion.button>
-									</div>
-								)}
-						</>
-					)}
+						)}
 
 					{inventory.isLoading && (
 						<div className="text-center py-12">

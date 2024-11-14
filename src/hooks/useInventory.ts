@@ -22,8 +22,11 @@ export function useInventory() {
 	const [view, setView] = useState<"categories" | "items">("categories");
 	const [items, setItems] = useState<Item[]>([]);
 	const [categories, setCategories] = useState<Category[]>([]);
-	const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+	const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+		null
+	);
 	const [search, setSearch] = useState("");
+	const [searchType, setSearchType] = useState<"all" | "categories" | "items">("all");
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 	const [hasMore, setHasMore] = useState(true);
@@ -77,7 +80,7 @@ export function useInventory() {
 					const path = await categoryOperations.getPath(categoryFromUrl);
 					setCategoryPath(path);
 					setCurrentCategory(category);
-					setSelectedCategory(categoryFromUrl);
+					setSelectedCategory(category);
 					setView(category.isFolder ? "categories" : "items");
 					if (!category.isFolder) {
 						await loadItems(categoryFromUrl, 1);
@@ -118,10 +121,12 @@ export function useInventory() {
 		try {
 			const newItem = await itemOperations.create(data);
 			setItems((prev) => [...prev, newItem]);
-			setItemCounts((prev) => ({
-				...prev,
-				[data.categoryId]: (prev[data.categoryId] || 0) + 1,
-			}));
+			if (data.categoryId) {
+				setItemCounts((prev) => ({
+					...prev,
+					[data.categoryId]: (prev[data.categoryId] || 0) + 1,
+				}));
+			}
 			showNotification("success", `Item "${data.name}" created successfully`);
 			closeCreateItemModal();
 		} catch (error) {
@@ -157,10 +162,12 @@ export function useInventory() {
 		try {
 			await itemOperations.delete(id);
 			setItems((prev) => prev.filter((item) => item.id !== id));
-			setItemCounts((prev) => ({
-				...prev,
-				[currentCategory?.id || ""]: (prev[currentCategory?.id || ""] || 0) - 1,
-			}));
+			if (currentCategory?.id) {
+				setItemCounts((prev) => ({
+					...prev,
+					[currentCategory.id]: (prev[currentCategory.id] || 0) - 1,
+				}));
+			}
 			showNotification("success", "Item deleted successfully");
 			closeDeleteItemModal();
 		} catch (error) {
@@ -176,12 +183,12 @@ export function useInventory() {
 		try {
 			const newCategory = await categoryOperations.create({
 				...data,
-				parentId: currentCategory ? currentCategory.id : null,
+				parentId: currentCategory ? currentCategory.id : undefined,
 			});
 			setCategories((prev) => [...prev, newCategory]);
 			setItemCounts((prev) => ({ ...prev, [newCategory.id]: 0 }));
 			setSubCategoryCounts((prev) => ({ ...prev, [newCategory.id]: 0 }));
-			if (currentCategory) {
+			if (currentCategory?.id) {
 				setSubCategoryCounts((prev) => ({
 					...prev,
 					[currentCategory.id]: (prev[currentCategory.id] || 0) + 1,
@@ -230,9 +237,10 @@ export function useInventory() {
 			await categoryOperations.delete(id);
 			setCategories((prev) => prev.filter((category) => category.id !== id));
 			if (currentCategory?.parentId) {
+				const parentId = currentCategory.parentId;
 				setSubCategoryCounts((prev) => ({
 					...prev,
-					[currentCategory.parentId]: (prev[currentCategory.parentId] || 0) - 1,
+					[parentId]: (prev[parentId] || 0) - 1,
 				}));
 			}
 			showNotification("success", "Category deleted successfully");
@@ -246,13 +254,42 @@ export function useInventory() {
 		}
 	};
 
+	const handleSearch = async (query: string) => {
+		setSearch(query);
+		if (query.trim() === "") {
+			if (currentCategory) {
+				await loadItems(currentCategory.id, 1);
+			} else {
+				resetToRoot();
+			}
+			return;
+		}
+
+		let searchResults: (Category | Item)[] = [];
+
+		if (searchType === "all" || searchType === "categories") {
+			const categoryResults = await categoryOperations.search(query);
+			searchResults = [...searchResults, ...categoryResults];
+		}
+
+		if (searchType === "all" || searchType === "items") {
+			const itemResults = currentCategory
+				? await itemOperations.searchInCategory(currentCategory.id, query)
+				: await itemOperations.search(query);
+			searchResults = [...searchResults, ...itemResults];
+		}
+
+		setItems(searchResults.filter((result): result is Item => 'categoryId' in result));
+		setCategories(searchResults.filter((result): result is Category => !('categoryId' in result)));
+	};
+
 	const handleCategoryClick = useCallback(
 		async (categoryId: string) => {
 			const category = categories.find((c) => c.id === categoryId);
 			if (!category) return;
 
 			setCurrentCategory(category);
-			setSelectedCategory(categoryId);
+			setSelectedCategory(category);
 			const path = await categoryOperations.getPath(categoryId);
 			setCategoryPath(path);
 
@@ -296,21 +333,7 @@ export function useInventory() {
 		if (selectedCategory) {
 			const nextPage = page + 1;
 			setPage(nextPage);
-			loadItems(selectedCategory, nextPage);
-		}
-	};
-
-	const handleSearch = async (query: string) => {
-		setSearch(query);
-		if (selectedCategory) {
-			const searchResults = await itemOperations.searchInCategory(
-				selectedCategory,
-				query
-			);
-			setItems(searchResults);
-		} else {
-			const searchResults = await itemOperations.search(query);
-			setItems(searchResults);
+			loadItems(selectedCategory.id, nextPage);
 		}
 	};
 
@@ -378,6 +401,8 @@ export function useInventory() {
 		setSelectedCategory,
 		search,
 		setSearch,
+		searchType,
+		setSearchType,
 		isSubmitting,
 		isLoading,
 		hasMore,

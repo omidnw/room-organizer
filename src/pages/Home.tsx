@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Package, Grid, Clock, BarChart2 } from "lucide-react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";

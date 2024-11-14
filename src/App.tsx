@@ -1,6 +1,5 @@
 // src/App.tsx
 
-import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
@@ -17,34 +16,16 @@ function App() {
 						<Route path="/" element={<Home />} />
 						<Route path="/inventory" element={<Inventory />} />
 						<Route path="/inventory/categories" element={<Inventory />}>
-							<Route
-								path="new"
-								element={<Inventory mode="create" type="category" />}
-							/>
+							<Route path="new" element={<Inventory />} />
 							<Route path=":id" element={<Inventory />} />
-							<Route
-								path=":id/edit"
-								element={<Inventory mode="edit" type="category" />}
-							/>
-							<Route
-								path=":id/delete"
-								element={<Inventory mode="delete" type="category" />}
-							/>
+							<Route path=":id/edit" element={<Inventory />} />
+							<Route path=":id/delete" element={<Inventory />} />
 						</Route>
 						<Route path="/inventory/items" element={<Inventory />}>
-							<Route
-								path="new"
-								element={<Inventory mode="create" type="item" />}
-							/>
+							<Route path="new" element={<Inventory />} />
 							<Route path=":id" element={<Inventory />} />
-							<Route
-								path=":id/edit"
-								element={<Inventory mode="edit" type="item" />}
-							/>
-							<Route
-								path=":id/delete"
-								element={<Inventory mode="delete" type="item" />}
-							/>
+							<Route path=":id/edit" element={<Inventory />} />
+							<Route path=":id/delete" element={<Inventory />} />
 						</Route>
 						<Route path="/settings" element={<Settings />} />
 						<Route path="/reports" element={<div>Reports Coming Soon</div>} />

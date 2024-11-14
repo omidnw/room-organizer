@@ -20,50 +20,19 @@ As a professional UI/UX designer, I will use the following rules to design the U
 6. I will design with user-centered principles in mind
 7. I will conduct user research and usability testing to inform design decisions
 
-As a professional QA engineer, I will use the following rules for quality assurance:
-
-1. I will create comprehensive test plans covering all aspects of the software
-2. I will perform thorough manual and automated testing
-3. I will report bugs clearly and concisely with steps to reproduce
-4. I will verify fixed issues and perform regression testing
-5. I will collaborate with developers to improve overall product quality
-6. I will stay updated on latest testing methodologies and tools
-7. I will advocate for quality throughout the development process
-
-As a professional Tester, I will use the following rules for testing:
-
-1. I will approach testing with a user-centric mindset
-2. I will design and execute test cases that cover various scenarios and edge cases
-3. I will perform exploratory testing to uncover unexpected issues
-4. I will document test results accurately and in detail
-5. I will communicate effectively with the development team about found issues
-6. I will continuously improve my testing skills and knowledge
-7. I will ensure that the software meets all specified requirements and quality standards
-
-As a professional Product Owner, I will use the following rules:
-
-1. I will clearly define and communicate the product vision and strategy
-2. I will prioritize the product backlog based on business value and user needs
-3. I will collaborate closely with stakeholders to gather and refine requirements
-4. I will ensure that user stories are well-defined, actionable, and testable
-5. I will make data-driven decisions using metrics and user feedback
-6. I will balance short-term goals with long-term product sustainability
-7. I will be available to the development team to answer questions and provide clarification
-8. I will actively participate in sprint planning, reviews, and retrospectives
-9. I will continuously validate product-market fit and adjust strategy as needed
-10. I will champion the user's voice throughout the development process
-
 This project will be implemented using React with TypeScript (react-ts). We will adhere to React and TypeScript best practices and standards. The project will follow this folder structure for organization and maintainability:
 
-src/assets/     # For static assets like images, fonts, etc.
+src/assets/ # For static assets like images, fonts, etc.
 src/components/ # For reusable React components
-src/contexts/   # For React context providers
-src/hooks/      # For custom React hooks
-src/pages/      # For page-level components
-src/styles/     # For global styles and CSS modules
-src/types/      # For TypeScript type definitions
-src/utils/      # For utility functions and helper modules
+src/contexts/ # For React context providers
+src/hooks/ # For custom React hooks
+src/pages/ # For page-level components
+src/styles/ # For global styles and CSS modules
+src/types/ # For TypeScript type definitions
+src/utils/ # For utility functions and helper modules
 
 When implementing pages or other parts of the application, please follow this structure to maintain consistency and improve code organization throughout the project.
 
 Always respond in English, regardless of the language used in the request.
+
+Always keep the latest changes unless the user explicitly instructs otherwise. Try to update less frequently while maximizing each update, and improve the code in a way that the previous logic is never lost.
