@@ -27,16 +27,10 @@ const menuItems: MenuItem[] = [
 		description: "Dashboard overview",
 	},
 	{
-		title: "Items",
-		href: "/inventory/items",
+		title: "Inventory",
+		href: "/inventory",
 		icon: Package,
-		description: "Browse your items",
-	},
-	{
-		title: "Categories",
-		href: "/inventory/categories",
-		icon: Grid,
-		description: "Manage categories",
+		description: "Manage your inventory",
 	},
 	{
 		title: "Reports",

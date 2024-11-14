@@ -1,34 +1,24 @@
 import { openDB, DBSchema, IDBPDatabase } from "idb";
+import { Category, Item } from "../../types/inventory";
+import { runMigrations } from "./migrations";
 
-interface InventoryDB extends DBSchema {
+export interface InventoryDB extends DBSchema {
 	categories: {
 		key: string;
-		value: {
-			id: string;
-			name: string;
-			description?: string;
-			color?: string;
-			createdAt: Date;
-			updatedAt: Date;
+		value: Category;
+		indexes: {
+			"by-name": string;
+			"by-updated": Date;
 		};
-		indexes: { "by-name": string };
 	};
 	items: {
 		key: string;
-		value: {
-			id: string;
-			name: string;
-			description?: string;
-			categoryId: string;
-			quantity: number;
-			price: number;
-			purchaseDate: string;
-			image?: string;
-			notes?: string;
-			createdAt: Date;
-			updatedAt: Date;
+		value: Item;
+		indexes: {
+			"by-category": string;
+			"by-name": string;
+			"by-updated": Date;
 		};
-		indexes: { "by-category": string; "by-name": string };
 	};
 	migrations: {
 		key: number;
@@ -41,18 +31,16 @@ interface InventoryDB extends DBSchema {
 		key: string;
 		value: {
 			timezone: string;
-			// Add other settings here in the future
 		};
 	};
 }
 
 export const DB_NAME = "home-inventory";
-export const DB_VERSION = 2;
+export const DB_VERSION = 5; // Start with the current version
 
 export async function initializeDB(): Promise<IDBPDatabase<InventoryDB>> {
 	const db = await openDB<InventoryDB>(DB_NAME, DB_VERSION, {
-		upgrade(db, oldVersion, newVersion) {
-			// Categories store
+		upgrade(db, oldVersion, newVersion, transaction) {
 			if (!db.objectStoreNames.contains("categories")) {
 				const categoryStore = db.createObjectStore("categories", {
 					keyPath: "id",
@@ -60,22 +48,22 @@ export async function initializeDB(): Promise<IDBPDatabase<InventoryDB>> {
 				categoryStore.createIndex("by-name", "name");
 			}
 
-			// Items store
 			if (!db.objectStoreNames.contains("items")) {
 				const itemStore = db.createObjectStore("items", { keyPath: "id" });
 				itemStore.createIndex("by-category", "categoryId");
 				itemStore.createIndex("by-name", "name");
 			}
 
-			// Migrations store
 			if (!db.objectStoreNames.contains("migrations")) {
 				db.createObjectStore("migrations", { keyPath: "version" });
 			}
 
-			// Settings store
 			if (!db.objectStoreNames.contains("settings")) {
 				db.createObjectStore("settings", { keyPath: "key" });
 			}
+
+			// Run migrations here
+			runMigrations(db, oldVersion, newVersion, transaction);
 		},
 	});
 

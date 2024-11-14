@@ -1,6 +1,7 @@
 // src/migrations/002_add_category_hierarchy.migration.ts
 import { Migration } from "../../../types/migration";
 import { getDB } from "../config";
+import { Category } from "../../../types/inventory";
 
 const migration: Migration = {
 	version: 2,
@@ -13,12 +14,12 @@ const migration: Migration = {
 		const categories = await store.getAll();
 
 		for (const category of categories) {
-			const updatedCategory = {
+			const updatedCategory: Category = {
 				...category,
 				path: [],
 				level: 0,
-				isFolder: true,
-				parentId: undefined,
+				isFolder: false,
+				parentId: null,
 			};
 
 			await store.put(updatedCategory);
@@ -39,8 +40,14 @@ const migration: Migration = {
 		const categories = await store.getAll();
 
 		for (const category of categories) {
-			const { path, level, isFolder, parentId, ...rollbackCategory } = category;
-			await store.put(rollbackCategory);
+			const { ...rollbackCategory } = category;
+			await store.put({
+				...rollbackCategory,
+				isFolder: false,
+				path: [],
+				level: 0,
+				parentId: null,
+			} as Category);
 		}
 
 		await tx.done;

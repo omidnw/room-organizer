@@ -1,4 +1,3 @@
-// src/utils/db/migrations.ts
 import { getDB } from "./config";
 import { Migration } from "../../types/migration";
 
@@ -14,13 +13,21 @@ async function loadMigrations(): Promise<Migration[]> {
 	return migrations.sort((a, b) => a.version - b.version);
 }
 
-export async function getCurrentVersion(): Promise<number> {
+async function getCurrentVersion(): Promise<number> {
 	const db = await getDB();
 	const tx = db.transaction("migrations", "readonly");
 	const store = tx.objectStore("migrations");
 	const versions = await store.getAllKeys();
 	await tx.done;
 	return versions.length > 0 ? Math.max(...versions) : 0;
+}
+
+async function recordMigration(version: number): Promise<void> {
+	const db = await getDB();
+	const tx = db.transaction("migrations", "readwrite");
+	const store = tx.objectStore("migrations");
+	await store.put({ version, timestamp: new Date() });
+	await tx.done;
 }
 
 export async function runMigrations(): Promise<void> {
@@ -40,6 +47,7 @@ export async function runMigrations(): Promise<void> {
 		try {
 			console.log(`Running migration ${migration.version}: ${migration.name}`);
 			await migration.migrate();
+			await recordMigration(migration.version);
 			console.log(`Migration ${migration.version} completed`);
 		} catch (error) {
 			console.error(`Migration ${migration.version} failed:`, error);
@@ -69,6 +77,7 @@ export async function rollbackMigration(targetVersion: number): Promise<void> {
 				`Rolling back migration ${migration.version}: ${migration.name}`
 			);
 			await migration.rollback();
+			await recordMigration(targetVersion);
 			console.log(`Rollback ${migration.version} completed`);
 		} catch (error) {
 			console.error(`Rollback ${migration.version} failed:`, error);

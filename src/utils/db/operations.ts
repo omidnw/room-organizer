@@ -9,7 +9,7 @@ import {
 
 // Category Operations
 export const categoryOperations = {
-	async create(category: CategoryFormData): Promise<Category> {
+	async create(data: CategoryFormData): Promise<Category> {
 		const db = await getDB();
 		const id = uuidv4();
 
@@ -17,8 +17,8 @@ export const categoryOperations = {
 		let path: string[] = [];
 		let level = 0;
 
-		if (category.parentId) {
-			const parent = await this.getById(category.parentId);
+		if (data.parentId) {
+			const parent = await this.getById(data.parentId);
 			if (parent) {
 				path = [...parent.path, parent.id];
 				level = parent.level + 1;
@@ -27,7 +27,11 @@ export const categoryOperations = {
 
 		const newCategory: Category = {
 			id,
-			...category,
+			name: data.name,
+			color: data.color,
+			description: data.description,
+			parentId: data.parentId ?? null,
+			isFolder: data.isFolder ?? false,
 			path,
 			level,
 			createdAt: new Date(),
@@ -47,7 +51,14 @@ export const categoryOperations = {
 			...category,
 			...data,
 			updatedAt: new Date(),
+			// Preserve required fields
+			name: data.name ?? category.name,
+			color: data.color ?? category.color,
+			isFolder: data.isFolder ?? category.isFolder,
+			path: category.path,
+			level: category.level,
 		};
+
 		await db.put("categories", updatedCategory);
 		return updatedCategory;
 	},
@@ -59,46 +70,68 @@ export const categoryOperations = {
 
 	async getById(id: string): Promise<Category | undefined> {
 		const db = await getDB();
-		return db.get("categories", id);
+		const category = await db.get("categories", id);
+		if (!category) return undefined;
+
+		return {
+			...category,
+			isFolder: category.isFolder ?? false,
+			path: category.path ?? [],
+			level: category.level ?? 0,
+		} as Category;
 	},
 
 	async getAll(): Promise<Category[]> {
 		const db = await getDB();
-		return db.getAllFromIndex("categories", "by-name");
+		const categories = await db.getAllFromIndex("categories", "by-name");
+		return categories.map((category) => ({
+			...category,
+			isFolder: category.isFolder ?? false,
+			path: category.path ?? [],
+			level: category.level ?? 0,
+		})) as Category[];
 	},
 
-	async search(query: string): Promise<Category[]> {
+	async search(
+		query: string,
+		parentId?: string | undefined
+	): Promise<Category[]> {
 		const db = await getDB();
-		const allCategories = await db.getAllFromIndex("categories", "by-name");
+		const allCategories = await this.getAll();
 		const searchLower = query.toLowerCase();
 
 		return allCategories.filter(
 			(category) =>
-				category.name.toLowerCase().includes(searchLower) ||
-				category.description?.toLowerCase().includes(searchLower)
+				(parentId === undefined || category.parentId === parentId) &&
+				(category.name.toLowerCase().includes(searchLower) ||
+					category.description?.toLowerCase().includes(searchLower))
 		);
 	},
 
 	async getChildren(parentId: string | null): Promise<Category[]> {
-		const db = await getDB();
-		const allCategories = await db.getAllFromIndex("categories", "by-name");
+		const allCategories = await this.getAll();
 		return allCategories.filter((cat) => cat.parentId === parentId);
 	},
 
 	async getPath(categoryId: string): Promise<Category[]> {
-		const db = await getDB();
 		const category = await this.getById(categoryId);
 		if (!category) return [];
 
 		const path = await Promise.all(category.path.map((id) => this.getById(id)));
-
 		return path.filter((cat): cat is Category => cat !== undefined);
 	},
 
 	async getDescendants(categoryId: string): Promise<Category[]> {
-		const db = await getDB();
-		const allCategories = await db.getAllFromIndex("categories", "by-name");
+		const allCategories = await this.getAll();
 		return allCategories.filter((cat) => cat.path.includes(categoryId));
+	},
+
+	async getRecent(limit: number = 5): Promise<Category[]> {
+		const db = await getDB();
+		const categories = await db.getAllFromIndex("categories", "by-updated");
+		return categories
+			.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+			.slice(0, limit);
 	},
 };
 
@@ -223,12 +256,19 @@ export const itemOperations = {
 
 		return filteredItems;
 	},
+
+	async getRecent(limit: number = 5): Promise<Item[]> {
+		const db = await getDB();
+		const items = await db.getAllFromIndex("items", "by-updated");
+		return items
+			.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+			.slice(0, limit);
+	},
 };
 
 // Helper functions
 export const dbHelpers = {
 	async initialize() {
-		const db = await getDB();
 		const categories = await categoryOperations.getAll();
 
 		if (categories.length === 0) {
@@ -255,12 +295,14 @@ export const dbHelpers = {
 					color: "#F97316",
 					description: "Items in storage boxes",
 					parentId: storage.id,
+					isFolder: false,
 				}),
 				categoryOperations.create({
 					name: "Wall Shelves",
 					color: "#14B8A6",
 					description: "Items on wall-mounted shelves",
 					parentId: storage.id,
+					isFolder: false,
 				}),
 
 				// Furniture subcategories
@@ -269,24 +311,28 @@ export const dbHelpers = {
 					color: "#10B981",
 					description: "Items in desk drawers",
 					parentId: furniture.id,
+					isFolder: false,
 				}),
 				categoryOperations.create({
 					name: "Wardrobe",
 					color: "#F59E0B",
 					description: "Clothes and items in wardrobe",
 					parentId: furniture.id,
+					isFolder: false,
 				}),
 				categoryOperations.create({
 					name: "Bedside Cabinet",
 					color: "#8B5CF6",
 					description: "Items in bedside drawers",
 					parentId: furniture.id,
+					isFolder: false,
 				}),
 				categoryOperations.create({
 					name: "Under-bed Storage",
 					color: "#EC4899",
 					description: "Items stored under the bed",
 					parentId: furniture.id,
+					isFolder: false,
 				}),
 			]);
 		}
@@ -303,7 +349,7 @@ export const dbHelpers = {
 		const tx = db.transaction(["categories", "items"], "readwrite");
 
 		await Promise.all([
-			...data.categories.map((cat) => tx.store.add(cat)),
+			...data.categories.map((cat) => tx.objectStore("categories").add(cat)),
 			...data.items.map((item) => tx.objectStore("items").add(item)),
 		]);
 

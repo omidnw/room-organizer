@@ -1,7 +1,5 @@
-// src/hooks/useInventory.ts
-
 import { useState, useEffect, useCallback } from "react";
-import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import {
 	Item,
 	Category,
@@ -16,7 +14,6 @@ const ITEMS_PER_PAGE = 10;
 export function useInventory() {
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
-	const location = useLocation();
 	const { showNotification } = useNotification();
 
 	const [view, setView] = useState<"categories" | "items">("categories");
@@ -26,7 +23,9 @@ export function useInventory() {
 		null
 	);
 	const [search, setSearch] = useState("");
-	const [searchType, setSearchType] = useState<"all" | "categories" | "items">("all");
+	const [searchType, setSearchType] = useState<"all" | "categories" | "items">(
+		"all"
+	);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 	const [hasMore, setHasMore] = useState(true);
@@ -39,8 +38,6 @@ export function useInventory() {
 	const [currentCategory, setCurrentCategory] = useState<
 		Category | undefined
 	>();
-	const [currentItem, setCurrentItem] = useState<Item | undefined>();
-
 	const [isCreateItemModalOpen, setIsCreateItemModalOpen] = useState(false);
 	const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] =
 		useState(false);
@@ -99,22 +96,87 @@ export function useInventory() {
 		loadInitialData();
 	}, [loadInitialData]);
 
-	const loadItems = async (categoryId: string, page: number) => {
-		try {
-			const loadedItems = await itemOperations.getByCategory(categoryId, {
-				page,
-				limit: ITEMS_PER_PAGE,
-				includeSubcategories: false,
-			});
-			setItems((prev) =>
-				page === 1 ? loadedItems : [...prev, ...loadedItems]
-			);
-			setHasMore(loadedItems.length === ITEMS_PER_PAGE);
-		} catch (error) {
-			console.error("Error loading items:", error);
-			showNotification("error", "Failed to load items");
+	// New useEffect to update items when selectedCategory changes
+	useEffect(() => {
+		if (selectedCategory) {
+			// Reset items and pagination
+			setItems([]);
+			setPage(1);
+			setHasMore(true);
+
+			// Load items for the selected category
+			loadItems(selectedCategory.id, 1);
 		}
-	};
+	}, [selectedCategory]);
+
+	const resetToRoot = useCallback(() => {
+		setView("categories");
+		setSelectedCategory(null);
+		setCurrentCategory(undefined);
+		setCategoryPath([]);
+		setItems([]);
+		setPage(1);
+		navigate("/inventory/categories");
+	}, [navigate]);
+
+	const loadItems = useCallback(
+		async (categoryId: string, page: number) => {
+			try {
+				const loadedItems = await itemOperations.getByCategory(categoryId, {
+					page,
+					limit: ITEMS_PER_PAGE,
+					includeSubcategories: false,
+				});
+				setItems((prev) =>
+					page === 1 ? loadedItems : [...prev, ...loadedItems]
+				);
+				setHasMore(loadedItems.length === ITEMS_PER_PAGE);
+			} catch (error) {
+				console.error("Error loading items:", error);
+				showNotification("error", "Failed to load items");
+			}
+		},
+		[showNotification]
+	);
+
+	const handleSearch = useCallback(
+		async (query: string) => {
+			setSearch(query);
+			if (query.trim() === "") {
+				if (currentCategory) {
+					await loadItems(currentCategory.id, 1);
+					const subCategories = await categoryOperations.getChildren(
+						currentCategory.id
+					);
+					setCategories(subCategories);
+				} else {
+					const rootCategories = await categoryOperations.getChildren(null);
+					setCategories(rootCategories);
+					setItems([]);
+				}
+				return;
+			}
+
+			let categoryResults: Category[] = [];
+			let itemResults: Item[] = [];
+
+			if (searchType === "all" || searchType === "categories") {
+				categoryResults = currentCategory
+					? await categoryOperations.search(query, currentCategory.id)
+					: await categoryOperations.search(query);
+			}
+
+			if (searchType === "all" || searchType === "items") {
+				itemResults = currentCategory
+					? await itemOperations.searchInCategory(currentCategory.id, query)
+					: await itemOperations.search(query);
+			}
+
+			setCategories(categoryResults);
+			setItems(itemResults);
+		},
+		[currentCategory, searchType, loadItems]
+	);
 
 	const handleCreateItem = async (data: ItemFormData) => {
 		setIsSubmitting(true);
@@ -254,35 +316,6 @@ export function useInventory() {
 		}
 	};
 
-	const handleSearch = async (query: string) => {
-		setSearch(query);
-		if (query.trim() === "") {
-			if (currentCategory) {
-				await loadItems(currentCategory.id, 1);
-			} else {
-				resetToRoot();
-			}
-			return;
-		}
-
-		let searchResults: (Category | Item)[] = [];
-
-		if (searchType === "all" || searchType === "categories") {
-			const categoryResults = await categoryOperations.search(query);
-			searchResults = [...searchResults, ...categoryResults];
-		}
-
-		if (searchType === "all" || searchType === "items") {
-			const itemResults = currentCategory
-				? await itemOperations.searchInCategory(currentCategory.id, query)
-				: await itemOperations.search(query);
-			searchResults = [...searchResults, ...itemResults];
-		}
-
-		setItems(searchResults.filter((result): result is Item => 'categoryId' in result));
-		setCategories(searchResults.filter((result): result is Category => !('categoryId' in result)));
-	};
-
 	const handleCategoryClick = useCallback(
 		async (categoryId: string) => {
 			const category = categories.find((c) => c.id === categoryId);
@@ -318,16 +351,6 @@ export function useInventory() {
 			resetToRoot();
 		}
 	}, [currentCategory, categories, handleCategoryClick]);
-
-	const resetToRoot = useCallback(() => {
-		setView("categories");
-		setSelectedCategory(null);
-		setCurrentCategory(undefined);
-		setCategoryPath([]);
-		setItems([]);
-		setPage(1);
-		navigate("/inventory/categories");
-	}, [navigate]);
 
 	const handleLoadMore = () => {
 		if (selectedCategory) {
@@ -412,8 +435,6 @@ export function useInventory() {
 		setCategoryPath,
 		currentCategory,
 		setCurrentCategory,
-		currentItem,
-		setCurrentItem,
 		isCreateItemModalOpen,
 		isCreateCategoryModalOpen,
 		isEditItemModalOpen,
