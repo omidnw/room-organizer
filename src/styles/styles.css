@@ -4,86 +4,91 @@
 
 /* Light Theme - Clean & Professional */
 .theme-light {
-  --color-primary: #007BFF; /* Brighter blue for better visibility */
-  --color-secondary: #28A745; /* A more vibrant green */
-  --color-accent: #6C757D; /* Neutral gray for accents */
-  --color-background: #FFFFFF; /* White background for clarity */
-  --color-surface: #F8F9FA; /* Light gray surface */
-  --color-text-primary: #212529; /* Darker text for improved contrast */
-  --color-text-secondary: #495057; /* Medium gray for secondary text */
-  --color-border: #CED4DA; /* Soft gray border */
-  --color-error: #DC3545; /* Red for errors */
-  --color-success: #28A745; /* Green for success messages */
-  --color-warning: #F59E0B;
+	--color-primary: #007bff; /* Brighter blue for better visibility */
+	--color-secondary: #28a745; /* A more vibrant green */
+	--color-accent: #6c757d; /* Neutral gray for accents */
+	--color-background: #ffffff; /* White background for clarity */
+	--color-surface: #f8f9fa; /* Light gray surface */
+	--color-text-primary: #212529; /* Darker text for improved contrast */
+	--color-text-secondary: #495057; /* Medium gray for secondary text */
+	--color-border: #ced4da; /* Soft gray border */
+	--color-error: #dc3545; /* Red for errors */
+	--color-success: #28a745; /* Green for success messages */
+	--color-warning: #f59e0b;
 }
 
 /* Dark Theme - Modern & Sleek */
 .theme-dark {
-  --color-primary: #3B82F6;
-  --color-secondary: #10B981;
-  --color-accent: #60A5FA;
-  --color-background: #111827;
-  --color-surface: #1F2937;
-  --color-text-primary: #F9FAFB;
-  --color-text-secondary: #9CA3AF;
-  --color-border: #374151;
-  --color-error: #EF4444;
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
+	--color-primary: #3b82f6;
+	--color-secondary: #10b981;
+	--color-accent: #60a5fa;
+	--color-background: #111827;
+	--color-surface: #1f2937;
+	--color-text-primary: #f9fafb;
+	--color-text-secondary: #9ca3af;
+	--color-border: #374151;
+	--color-error: #ef4444;
+	--color-success: #10b981;
+	--color-warning: #f59e0b;
 }
 
 /* Midnight Theme - Deep & Rich */
 .theme-midnight {
-  --color-primary: #8B5CF6;
-  --color-secondary: #EC4899;
-  --color-accent: #A78BFA;
-  --color-background: #0F172A;
-  --color-surface: #1E293B;
-  --color-text-primary: #F8FAFC;
-  --color-text-secondary: #94A3B8;
-  --color-border: #334155;
-  --color-error: #EF4444;
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
+	--color-primary: #8b5cf6;
+	--color-secondary: #ec4899;
+	--color-accent: #a78bfa;
+	--color-background: #0f172a;
+	--color-surface: #1e293b;
+	--color-text-primary: #f8fafc;
+	--color-text-secondary: #94a3b8;
+	--color-border: #334155;
+	--color-error: #ef4444;
+	--color-success: #10b981;
+	--color-warning: #f59e0b;
 }
 
 /* Sunset Theme - Warm & Vibrant */
 .theme-sunset {
-  --color-primary: #F59E0B;
-  --color-secondary: #D97706;
-  --color-accent: #FBBF24;
-  --color-background: #FFFBEB;
-  --color-surface: #FFFFFF;
-  --color-text-primary: #78350F;
-  --color-text-secondary: #92400E;
-  --color-border: #FDE68A;
-  --color-error: #DC2626;
-  --color-success: #059669;
-  --color-warning: #F59E0B;
+	--color-primary: #f59e0b;
+	--color-secondary: #d97706;
+	--color-accent: #fbbf24;
+	--color-background: #fffbeb;
+	--color-surface: #ffffff;
+	--color-text-primary: #78350f;
+	--color-text-secondary: #92400e;
+	--color-border: #fde68a;
+	--color-error: #dc2626;
+	--color-success: #059669;
+	--color-warning: #f59e0b;
 }
 
 body {
-  background-color: var(--color-background);
-  color: var(--color-text-primary);
-  font-family: 'Inter', sans-serif;
-  margin: 0;
-  padding: 0;
+	background-color: var(--color-background);
+	color: var(--color-text-primary);
+	font-family: "Inter", sans-serif;
+	margin: 0;
+	padding: 0;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  color: var(--color-text-primary);
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	color: var(--color-text-primary);
 }
 
 button {
-  font-family: inherit;
-  cursor: pointer;
+	font-family: inherit;
+	cursor: pointer;
 }
 
 a {
-  text-decoration: none;
-  color: inherit;
+	text-decoration: none;
+	color: inherit;
 }
 
 .transition-colors {
-  transition: all 0.3s ease;
-} 
+	transition: all 0.3s ease;
+}

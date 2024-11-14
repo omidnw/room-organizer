@@ -1,69 +1,37 @@
-import React from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Package } from 'lucide-react';
-import Modal from '../../ui/Modal';
-import ItemForm from '../ItemForm';
-import Select from '../../ui/Select';
-import { ItemFormData } from '../../../types/inventory';
-import { useNotification } from '../../../contexts/NotificationContext';
+import React from "react";
+import Modal from "../../ui/Modal";
+import ItemForm from "../ItemForm";
+import { ItemFormData } from "../../../types/inventory";
 
 interface CreateItemModalProps {
-  isOpen: boolean;
-  categories: { id: string; name: string }[];
-  onSubmit: (data: ItemFormData) => Promise<void>;
-  isSubmitting: boolean;
+	isOpen: boolean;
+	onClose: () => void;
+	onSubmit: (data: ItemFormData) => Promise<void>;
+	categories: { id: string; name: string }[];
+	currentCategory?: { id: string; name: string } | null;
 }
 
-function CreateItemModal({ isOpen, categories, onSubmit, isSubmitting }: CreateItemModalProps) {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const { showNotification } = useNotification();
+function CreateItemModal({
+	isOpen,
+	onClose,
+	onSubmit,
+	categories,
+	currentCategory,
+}: CreateItemModalProps) {
+	const handleSubmit = async (data: ItemFormData) => {
+		await onSubmit(data);
+		onClose();
+	};
 
-  const categoryOptions = categories.map(cat => ({
-    value: cat.id,
-    label: cat.name
-  }));
-
-  // Get the selected category from URL if it exists
-  const selectedCategory = searchParams.get('category') || '';
-
-  const handleSubmit = async (data: ItemFormData) => {
-    try {
-      await onSubmit(data);
-      showNotification('success', `Item "${data.name}" created successfully`);
-      // Navigate back to the category view if we came from there
-      navigate(selectedCategory ? `/items?category=${selectedCategory}` : '/items');
-    } catch (error) {
-      console.error('Error creating item:', error);
-      showNotification('error', `Failed to create item: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={() => navigate(selectedCategory ? `/items?category=${selectedCategory}` : '/items')}
-      title="Add New Item"
-    >
-      <ItemForm
-        onSubmit={handleSubmit}
-        categories={categories}
-        isSubmitting={isSubmitting}
-        initialData={{ categoryId: selectedCategory }}
-        categorySelect={(props) => (
-          <Select
-            {...props}
-            icon={Package}
-            label="Category"
-            placeholder="Select a category"
-            options={categoryOptions}
-            error={props.error}
-            required
-          />
-        )}
-      />
-    </Modal>
-  );
+	return (
+		<Modal isOpen={isOpen} onClose={onClose} title="Add New Item">
+			<ItemForm
+				onSubmit={handleSubmit}
+				categories={categories}
+				initialData={{ categoryId: currentCategory?.id || "" }}
+			/>
+		</Modal>
+	);
 }
 
-export default CreateItemModal; 
+export default CreateItemModal;
