@@ -45,7 +45,7 @@ export default defineConfig({
 				],
 				cleanupOutdatedCaches: true,
 				sourcemap: true,
-				navigateFallback: "/index.html",
+				navigateFallback: "/room-organizer/index.html",
 				navigateFallbackDenylist: [/^\/api\//],
 				skipWaiting: true,
 				clientsClaim: true,
@@ -59,7 +59,7 @@ export default defineConfig({
 				background_color: "#ffffff",
 				display: "standalone",
 				orientation: "portrait",
-				scope: "/",
+				scope: "/room-organizer/",
 				start_url: "/room-organizer",
 				icons: [
 					{
@@ -82,12 +82,12 @@ export default defineConfig({
 				shortcuts: [
 					{
 						name: "Inventory",
-						url: "/inventory",
+						url: "/room-organizer/inventory",
 						icons: [{ src: "icons/inventory.png", sizes: "96x96" }],
 					},
 					{
 						name: "Settings",
-						url: "/settings",
+						url: "/room-organizer/settings",
 						icons: [{ src: "icons/settings.png", sizes: "96x96" }],
 					},
 				],
