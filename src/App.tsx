@@ -6,6 +6,7 @@ import { NotificationProvider } from "./contexts/NotificationContext";
 import Home from "./pages/Home";
 import Inventory from "./pages/Inventory";
 import Settings from "./pages/Settings";
+import Reports from "./pages/Reports";
 
 function App() {
 	return (
@@ -28,7 +29,9 @@ function App() {
 							<Route path=":id/delete" element={<Inventory />} />
 						</Route>
 						<Route path="/settings" element={<Settings />} />
-						<Route path="/reports" element={<div>Reports Coming Soon</div>} />
+						<Route path="/reports" element={<Reports />} />
+						<Route path="/reports/categories" element={<Reports />} />
+						<Route path="/reports/categories/:id" element={<Reports />} />
 						<Route path="/help" element={<div>Help Coming Soon</div>} />
 						<Route
 							path="/privacy"

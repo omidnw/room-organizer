@@ -5,20 +5,34 @@ interface CardProps {
 	title?: string;
 	children: React.ReactNode;
 	className?: string;
+	onClick?: () => void;
+	"data-category-id"?: string;
 }
 
-function Card({ title, children, className = "" }: CardProps) {
+function Card({
+	children,
+	className = "",
+	onClick,
+	"data-category-id": categoryId,
+	...props
+}: CardProps) {
+	const handleClick = () => {
+		if (onClick) {
+			onClick();
+		}
+	};
+
 	return (
-		<motion.section
-			initial={{ opacity: 0, y: 20 }}
-			animate={{ opacity: 1, y: 0 }}
-			className={`bg-surface rounded-xl shadow-lg p-6 ${className}`}
+		<section
+			className={`bg-surface rounded-xl shadow-lg ${className}`}
+			onClick={handleClick}
+			data-category-id={categoryId}
+			role={onClick ? "button" : undefined}
+			tabIndex={onClick ? 0 : undefined}
+			{...props}
 		>
-			{title && (
-				<h3 className="text-xl font-semibold text-textPrimary mb-4">{title}</h3>
-			)}
 			{children}
-		</motion.section>
+		</section>
 	);
 }
 
