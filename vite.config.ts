@@ -63,17 +63,17 @@ export default defineConfig({
 				start_url: "/",
 				icons: [
 					{
-						src: "assets/home-organizer/images/icons/icon-192x192.png",
+						src: "assets/room-organizer/images/icons/icon-192x192.png",
 						sizes: "192x192",
 						type: "image/png",
 					},
 					{
-						src: "assets/home-organizer/images/icons/icon-512x512.png",
+						src: "assets/room-organizer/images/icons/icon-512x512.png",
 						sizes: "512x512",
 						type: "image/png",
 					},
 					{
-						src: "assets/home-organizer/images/icons/icon-512x512.png",
+						src: "assets/room-organizer/images/icons/icon-512x512.png",
 						sizes: "512x512",
 						type: "image/png",
 						purpose: "any maskable",
@@ -94,7 +94,7 @@ export default defineConfig({
 				categories: ["productivity", "utilities"],
 				screenshots: [
 					{
-						src: "assets/home-organizer/images/screenshots/home.png",
+						src: "assets/room-organizer/images/screenshots/home.png",
 						sizes: "1280x720",
 						type: "image/png",
 					},
@@ -121,5 +121,5 @@ export default defineConfig({
 			},
 		},
 	},
-	base: '/room-organizer/',
+	base: "/room-organizer/",
 });

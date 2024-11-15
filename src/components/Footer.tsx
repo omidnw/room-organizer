@@ -28,6 +28,14 @@ function Footer() {
 						>
 							Settings
 						</Link>
+						<a
+							href="https://github.com/omidnw/room-organizer"
+							className="text-sm text-textSecondary hover:text-primary transition-colors"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							GitHub Repo
+						</a>
 					</div>
 				</div>
 			</div>

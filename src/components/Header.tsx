@@ -24,10 +24,8 @@ function Header() {
 						>
 							<img
 								src={
-									window.location.origin.includes("github.io")
-										? "/room-organizer/assets/home-organizer/images/logo.png"
-										: window.location.origin +
-											"/assets/home-organizer/images/logo.png"
+									window.location.origin +
+									"/room-organizer/assets/room-organizer/images/logo.png"
 								}
 								alt="Home Organizer Logo"
 								className="w-8 h-8"

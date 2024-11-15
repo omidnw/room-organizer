@@ -35,7 +35,7 @@ registerRoute(
 		request.destination === "style" ||
 		request.destination === "image" ||
 		request.destination === "font" ||
-		request.url.includes("assets/home-organizer/images/logo.png"),
+		request.url.includes("assets/room-organizer/images/logo.png"),
 	new CacheFirst({
 		cacheName: "static-assets",
 		plugins: [
