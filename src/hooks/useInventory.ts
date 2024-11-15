@@ -70,17 +70,33 @@ export function useInventory() {
 			setItemCounts(counts);
 			setSubCategoryCounts(subCounts);
 
-			const categoryFromUrl = searchParams.get("category");
-			if (categoryFromUrl) {
-				const category = allCategories.find((c) => c.id === categoryFromUrl);
+			// Extract category ID from both URL patterns
+			let categoryId: string | null = null;
+
+			// Check URL path for category ID (categories/:id pattern)
+			const urlParts = window.location.pathname.split("/");
+			if (urlParts.includes("categories")) {
+				const lastPart = urlParts[urlParts.length - 1];
+				if (lastPart !== "categories") {
+					categoryId = lastPart;
+				}
+			}
+
+			// If not found in path, check query params (items?category=id pattern)
+			if (!categoryId) {
+				categoryId = searchParams.get("category");
+			}
+
+			if (categoryId) {
+				const category = allCategories.find((c) => c.id === categoryId);
 				if (category) {
-					const path = await categoryOperations.getPath(categoryFromUrl);
+					const path = await categoryOperations.getPath(categoryId);
 					setCategoryPath(path);
 					setCurrentCategory(category);
 					setSelectedCategory(category);
 					setView(category.isFolder ? "categories" : "items");
 					if (!category.isFolder) {
-						await loadItems(categoryFromUrl, 1);
+						await loadItems(categoryId, 1);
 					}
 				}
 			}

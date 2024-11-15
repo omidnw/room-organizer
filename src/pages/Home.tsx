@@ -49,12 +49,6 @@ function Home() {
 			href: "/inventory",
 		},
 		{
-			title: "Recent Items",
-			description: "View recently added items",
-			icon: Clock,
-			href: "/inventory/items",
-		},
-		{
 			title: "Reports",
 			description: "View inventory reports",
 			icon: BarChart2,
@@ -121,7 +115,7 @@ function Home() {
 						<h3 className="text-lg font-semibold text-textPrimary mb-4">
 							Quick Actions
 						</h3>
-						<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+						<div className="grid grid-cols-2 md:grid-cols-3 gap-4">
 							{quickActions.map((action, index) => (
 								<motion.div
 									key={action.title}

@@ -13,13 +13,13 @@ async function loadMigrations(): Promise<Migration[]> {
 	return migrations.sort((a, b) => a.version - b.version);
 }
 
-async function getCurrentVersion(): Promise<number> {
+export async function getCurrentVersion(): Promise<number> {
 	const db = await getDB();
 	const tx = db.transaction("migrations", "readonly");
 	const store = tx.objectStore("migrations");
 	const versions = await store.getAllKeys();
 	await tx.done;
-	return versions.length > 0 ? Math.max(...versions) : 0;
+	return versions.length > -1 ? Math.max(...versions) : 0;
 }
 
 async function recordMigration(version: number): Promise<void> {
@@ -56,6 +56,7 @@ export async function runMigrations(): Promise<void> {
 	}
 
 	console.log("All migrations completed successfully");
+	window.location.reload();
 }
 
 export async function rollbackMigration(targetVersion: number): Promise<void> {

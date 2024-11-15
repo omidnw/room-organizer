@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ItemFormSchema, ItemFormData } from "../../types/inventory";
 import { useSettings } from "../../hooks/useSettings";
+import Select from "../ui/Select";
 
 interface ItemFormProps {
 	onSubmit: (data: ItemFormData) => Promise<void>;
@@ -71,31 +72,19 @@ function ItemForm({
 						error: errors.categoryId?.message,
 					})
 				) : (
-					<>
-						<label
-							htmlFor="categoryId"
-							className="block text-sm font-medium text-textPrimary mb-1"
-						>
-							Category
-						</label>
-						<select
-							id="categoryId"
-							{...register("categoryId")}
-							className="w-full px-4 py-2 bg-background border border-border rounded-lg text-textPrimary focus:outline-none focus:border-primary transition-colors"
-						>
-							<option value="">Select a category</option>
-							{categories.map((category) => (
-								<option key={category.id} value={category.id}>
-									{category.name}
-								</option>
-							))}
-						</select>
-						{errors.categoryId && (
-							<p className="mt-1 text-sm text-error">
-								{errors.categoryId.message}
-							</p>
-						)}
-					</>
+					<Select
+						id="categoryId"
+						name="categoryId"
+						label="Category"
+						register={register}
+						error={errors.categoryId?.message}
+						options={categories.map((category) => ({
+							value: category.id,
+							label: category.name,
+						}))}
+						placeholder="Select a category"
+						required
+					/>
 				)}
 			</div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
 	Settings as SettingsIcon,
@@ -6,7 +6,9 @@ import {
 	Bell,
 	Layout,
 	Globe,
+	Database,
 } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Card from "../components/ui/Card";
@@ -14,18 +16,25 @@ import ThemeSection from "../components/settings/sections/ThemeSection";
 import NotificationSection from "../components/settings/sections/NotificationSection";
 import AppearanceSection from "../components/settings/sections/AppearanceSection";
 import LocalizationSection from "../components/settings/sections/LocalizationSection";
+import DataManagementSection from "../components/settings/sections/DataManagementSection";
 
 type SettingsSection =
 	| "theme"
 	| "notifications"
 	| "appearance"
-	| "localization";
+	| "localization"
+	| "data";
+
+interface SettingsProps {
+	defaultSection?: SettingsSection;
+}
 
 interface SettingsTab {
 	id: SettingsSection;
 	label: string;
 	icon: typeof SettingsIcon;
 	description: string;
+	path: string;
 }
 
 const settingsTabs: SettingsTab[] = [
@@ -34,31 +43,62 @@ const settingsTabs: SettingsTab[] = [
 		label: "Theme",
 		icon: Palette,
 		description: "Customize the look and feel",
+		path: "/settings/theme",
 	},
 	{
 		id: "notifications",
 		label: "Notifications",
 		icon: Bell,
 		description: "Configure notification preferences",
+		path: "/settings/notifications",
 	},
 	{
 		id: "appearance",
 		label: "Appearance",
 		icon: Layout,
 		description: "Adjust the app layout and animations",
+		path: "/settings/appearance",
 	},
 	{
 		id: "localization",
 		label: "Localization",
 		icon: Globe,
 		description: "Configure timezone settings",
+		path: "/settings/localization",
+	},
+	{
+		id: "data",
+		label: "Data Management",
+		icon: Database,
+		description: "Backup and restore your data",
+		path: "/settings/data",
 	},
 ];
 
-function Settings() {
-	const [activeSection, setActiveSection] = useState<SettingsSection>("theme");
+function Settings({ defaultSection = "theme" }: SettingsProps) {
+	const navigate = useNavigate();
+	const location = useLocation();
+	const [activeSection, setActiveSection] = useState<SettingsSection>(defaultSection);
 	const [animations, setAnimations] = useState(true);
 	const [compactMode, setCompactMode] = useState(false);
+
+	// Update active section based on URL
+	useEffect(() => {
+		const path = location.pathname.split("/").pop() as SettingsSection;
+		if (path && settingsTabs.some(tab => tab.id === path)) {
+			setActiveSection(path);
+		} else if (location.pathname === "/settings") {
+			setActiveSection(defaultSection);
+		}
+	}, [location, defaultSection]);
+
+	const handleSectionChange = (section: SettingsSection) => {
+		setActiveSection(section);
+		const tab = settingsTabs.find(t => t.id === section);
+		if (tab) {
+			navigate(tab.path);
+		}
+	};
 
 	const renderSection = () => {
 		switch (activeSection) {
@@ -77,6 +117,8 @@ function Settings() {
 				);
 			case "localization":
 				return <LocalizationSection />;
+			case "data":
+				return <DataManagementSection />;
 			default:
 				return null;
 		}
@@ -106,7 +148,7 @@ function Settings() {
 									<motion.button
 										key={tab.id}
 										whileHover={{ x: 4 }}
-										onClick={() => setActiveSection(tab.id)}
+										onClick={() => handleSectionChange(tab.id)}
 										className={`w-full flex items-center p-3 rounded-lg transition-colors ${
 											activeSection === tab.id
 												? "bg-primary/10 text-primary"

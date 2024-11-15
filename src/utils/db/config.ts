@@ -1,4 +1,4 @@
-import { openDB, DBSchema, IDBPDatabase } from "idb";
+import { openDB, DBSchema, IDBPDatabase, IDBPObjectStore } from "idb";
 import { Category, Item } from "../../types/inventory";
 import { runMigrations } from "./migrations";
 
@@ -35,8 +35,29 @@ export interface InventoryDB extends DBSchema {
 	};
 }
 
+type StoreNames = "categories" | "items" | "migrations" | "settings";
+type IndexNames<T extends StoreNames> = T extends keyof InventoryDB
+	? InventoryDB[T] extends { indexes: Record<string, unknown> }
+		? keyof InventoryDB[T]["indexes"]
+		: never
+	: never;
+
+function createIndex<T extends StoreNames>(
+	store: IDBPObjectStore<
+		InventoryDB,
+		ArrayLike<StoreNames>,
+		T,
+		"versionchange"
+	>,
+	indexName: IndexNames<T>,
+	keyPath: string | string[],
+	options?: IDBIndexParameters
+) {
+	store.createIndex(indexName, keyPath, options);
+}
+
 export const DB_NAME = "home-inventory";
-export const DB_VERSION = 5; // Start with the current version
+export const DB_VERSION = 1; // Start with the current version
 
 export async function initializeDB(): Promise<IDBPDatabase<InventoryDB>> {
 	const db = await openDB<InventoryDB>(DB_NAME, DB_VERSION, {
@@ -45,13 +66,15 @@ export async function initializeDB(): Promise<IDBPDatabase<InventoryDB>> {
 				const categoryStore = db.createObjectStore("categories", {
 					keyPath: "id",
 				});
-				categoryStore.createIndex("by-name", "name");
+				createIndex(categoryStore, "by-name", "name");
+				createIndex(categoryStore, "by-updated", "updatedAt");
 			}
 
 			if (!db.objectStoreNames.contains("items")) {
 				const itemStore = db.createObjectStore("items", { keyPath: "id" });
-				itemStore.createIndex("by-category", "categoryId");
-				itemStore.createIndex("by-name", "name");
+				createIndex(itemStore, "by-category", "categoryId");
+				createIndex(itemStore, "by-name", "name");
+				createIndex(itemStore, "by-updated", "updatedAt");
 			}
 
 			if (!db.objectStoreNames.contains("migrations")) {
@@ -73,7 +96,7 @@ export async function initializeDB(): Promise<IDBPDatabase<InventoryDB>> {
 let dbInstance: IDBPDatabase<InventoryDB> | null = null;
 
 export async function getDB(): Promise<IDBPDatabase<InventoryDB>> {
-	if (!dbInstance) {
+	if (!dbInstance || !dbInstance.objectStoreNames.length) {
 		dbInstance = await initializeDB();
 	}
 	return dbInstance;

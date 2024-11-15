@@ -12,7 +12,9 @@ function Header() {
 			<motion.header
 				initial={{ y: -100 }}
 				animate={{ y: 0 }}
-				className="fixed top-0 left-0 right-0 h-16 bg-surface border-b border-border z-30"
+				className={`fixed top-0 left-0 right-0 h-16 border-b border-border z-30 ${
+					isMenuOpen ? "bg-surface" : "bg-surface/80 backdrop-blur-sm"
+				}`}
 			>
 				<div className="max-w-6xl mx-auto px-4 h-full flex items-center justify-between">
 					<Link to="/">
@@ -20,20 +22,11 @@ function Header() {
 							whileHover={{ scale: 1.05 }}
 							className="flex items-center space-x-3"
 						>
-							<div className="bg-primary p-2 rounded-lg">
-								<svg
-									className="w-6 h-6 text-white"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									strokeWidth="2"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								>
-									<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-									<polyline points="9 22 9 12 15 12 15 22" />
-								</svg>
-							</div>
+							<img
+								src="/assets/home-organizer/images/logo.png"
+								alt="Home Organizer Logo"
+								className="w-8 h-8"
+							/>
 							<div className="flex flex-col">
 								<h1 className="text-xl font-bold text-textPrimary leading-tight">
 									Room Organizer
