@@ -78,14 +78,15 @@ const settingsTabs: SettingsTab[] = [
 function Settings({ defaultSection = "theme" }: SettingsProps) {
 	const navigate = useNavigate();
 	const location = useLocation();
-	const [activeSection, setActiveSection] = useState<SettingsSection>(defaultSection);
+	const [activeSection, setActiveSection] =
+		useState<SettingsSection>(defaultSection);
 	const [animations, setAnimations] = useState(true);
 	const [compactMode, setCompactMode] = useState(false);
 
 	// Update active section based on URL
 	useEffect(() => {
 		const path = location.pathname.split("/").pop() as SettingsSection;
-		if (path && settingsTabs.some(tab => tab.id === path)) {
+		if (path && settingsTabs.some((tab) => tab.id === path)) {
 			setActiveSection(path);
 		} else if (location.pathname === "/settings") {
 			setActiveSection(defaultSection);
@@ -94,7 +95,7 @@ function Settings({ defaultSection = "theme" }: SettingsProps) {
 
 	const handleSectionChange = (section: SettingsSection) => {
 		setActiveSection(section);
-		const tab = settingsTabs.find(t => t.id === section);
+		const tab = settingsTabs.find((t) => t.id === section);
 		if (tab) {
 			navigate(tab.path);
 		}

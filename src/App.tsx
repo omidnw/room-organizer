@@ -14,7 +14,7 @@ function App() {
 	return (
 		<ThemeProvider>
 			<NotificationProvider>
-				<BrowserRouter>
+				<BrowserRouter basename="/room-organizer">
 					<Routes>
 						<Route path="/" element={<Home />} />
 						<Route path="/inventory" element={<Inventory />} />
@@ -32,10 +32,22 @@ function App() {
 						</Route>
 						<Route path="/settings" element={<Settings />}>
 							<Route index element={<Settings defaultSection="theme" />} />
-							<Route path="theme" element={<Settings defaultSection="theme" />} />
-							<Route path="notifications" element={<Settings defaultSection="notifications" />} />
-							<Route path="appearance" element={<Settings defaultSection="appearance" />} />
-							<Route path="localization" element={<Settings defaultSection="localization" />} />
+							<Route
+								path="theme"
+								element={<Settings defaultSection="theme" />}
+							/>
+							<Route
+								path="notifications"
+								element={<Settings defaultSection="notifications" />}
+							/>
+							<Route
+								path="appearance"
+								element={<Settings defaultSection="appearance" />}
+							/>
+							<Route
+								path="localization"
+								element={<Settings defaultSection="localization" />}
+							/>
 							<Route path="data" element={<Settings defaultSection="data" />} />
 						</Route>
 						<Route path="/reports" element={<Reports />} />

@@ -23,7 +23,10 @@ function Header() {
 							className="flex items-center space-x-3"
 						>
 							<img
-								src="/assets/home-organizer/images/logo.png"
+								src={
+									window.location.origin +
+									"/assets/home-organizer/images/logo.png"
+								}
 								alt="Home Organizer Logo"
 								className="w-8 h-8"
 							/>
