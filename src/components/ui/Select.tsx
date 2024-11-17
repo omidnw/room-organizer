@@ -2,17 +2,17 @@ import React from "react";
 import { LucideIcon } from "lucide-react";
 import { UseFormRegister } from "react-hook-form";
 
-interface SelectOption {
-	value: string;
+interface SelectOption<T extends string = string> {
+	value: T;
 	label: string;
 	description?: string;
 }
 
-interface SelectProps {
+interface SelectProps<T extends string = string> {
 	id?: string;
-	value?: string;
-	onChange?: (value: string) => void;
-	options: SelectOption[];
+	value?: T;
+	onChange?: (value: T) => void;
+	options: SelectOption<T>[];
 	icon?: LucideIcon;
 	label?: string;
 	placeholder?: string;
@@ -23,7 +23,7 @@ interface SelectProps {
 	required?: boolean;
 }
 
-function Select({
+function Select<T extends string = string>({
 	id,
 	value,
 	onChange,
@@ -36,14 +36,14 @@ function Select({
 	name,
 	register,
 	required,
-}: SelectProps) {
+}: SelectProps<T>) {
 	const selectProps =
 		register && name
 			? register(name, { required })
 			: {
 					value,
 					onChange: (e: React.ChangeEvent<HTMLSelectElement>) =>
-						onChange?.(e.target.value),
+						onChange?.(e.target.value as T),
 				};
 
 	return (

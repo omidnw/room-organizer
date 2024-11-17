@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ChevronRight, Home } from "lucide-react";
 import { Category } from "../../types/inventory";
 import { useLocation, Link } from "react-router-dom";
+import { useUI } from "../../contexts/UIContext";
 
 interface CategoryBreadcrumbProps {
 	category?: Category;
@@ -16,12 +17,17 @@ function CategoryBreadcrumb({
 	categoryPath = [],
 }: CategoryBreadcrumbProps) {
 	const location = useLocation();
+	const { animations, animationSpeed, compactMode } = useUI();
 	const isReportsPage = location.pathname.startsWith("/reports");
 	const baseUrl = isReportsPage ? "/reports" : "/inventory";
 
 	return (
-		<nav className="flex items-center space-x-2 text-sm">
-			<motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+		<nav className={`flex items-center space-x-2 ${compactMode ? "text-sm" : "text-base"}`}>
+			<motion.div 
+				whileHover={animations ? { scale: 1.05 } : undefined}
+				whileTap={animations ? { scale: 0.95 } : undefined}
+				transition={{ duration: animationSpeed / 2000 }}
+			>
 				<Link
 					to={baseUrl}
 					className="p-2 rounded-lg hover:bg-surface text-textSecondary hover:text-primary transition-colors"
@@ -37,9 +43,9 @@ function CategoryBreadcrumb({
 			{categoryPath.map((cat, index) => (
 				<React.Fragment key={cat.id}>
 					<motion.div
-						initial={{ opacity: 0, x: -20 }}
-						animate={{ opacity: 1, x: 0 }}
-						transition={{ delay: index * 0.1 }}
+						initial={animations ? { opacity: 0, x: -20 } : undefined}
+						animate={animations ? { opacity: 1, x: 0 } : undefined}
+						transition={{ delay: index * 0.1, duration: animationSpeed / 1000 }}
 					>
 						<Link
 							to={`${baseUrl}/categories/${cat.id}`}
@@ -54,9 +60,9 @@ function CategoryBreadcrumb({
 
 			{category && (
 				<motion.span
-					initial={{ opacity: 0, x: -20 }}
-					animate={{ opacity: 1, x: 0 }}
-					transition={{ delay: categoryPath.length * 0.1 }}
+					initial={animations ? { opacity: 0, x: -20 } : undefined}
+					animate={animations ? { opacity: 1, x: 0 } : undefined}
+					transition={{ delay: categoryPath.length * 0.1, duration: animationSpeed / 1000 }}
 					className="text-textPrimary"
 				>
 					{category.name}

@@ -15,6 +15,7 @@
 	--color-error: #dc3545; /* Red for errors */
 	--color-success: #28a745; /* Green for success messages */
 	--color-warning: #f59e0b;
+	--color-surface-rgb: 248, 249, 250; /* RGB values for glass effect */
 }
 
 /* Dark Theme - Modern & Sleek */
@@ -30,6 +31,7 @@
 	--color-error: #ef4444;
 	--color-success: #10b981;
 	--color-warning: #f59e0b;
+	--color-surface-rgb: 31, 41, 55; /* RGB values for glass effect */
 }
 
 /* Midnight Theme - Deep & Rich */
@@ -45,6 +47,7 @@
 	--color-error: #ef4444;
 	--color-success: #10b981;
 	--color-warning: #f59e0b;
+	--color-surface-rgb: 30, 41, 59; /* RGB values for glass effect */
 }
 
 /* Sunset Theme - Warm & Vibrant */
@@ -60,6 +63,7 @@
 	--color-error: #dc2626;
 	--color-success: #059669;
 	--color-warning: #f59e0b;
+	--color-surface-rgb: 255, 255, 255; /* RGB values for glass effect */
 }
 
 body {
@@ -91,4 +95,107 @@ a {
 
 .transition-colors {
 	transition: all 0.3s ease;
+}
+
+/* Add these utility classes */
+.bg-theme-surface {
+	background-color: var(--color-surface);
+}
+
+.bg-theme-background {
+	background-color: var(--color-background);
+}
+
+.text-theme-primary {
+	color: var(--color-primary);
+}
+
+.text-theme-secondary {
+	color: var(--color-secondary);
+}
+
+.border-theme-primary {
+	border-color: var(--color-primary);
+}
+
+.border-theme-border {
+	border-color: var(--color-border);
+}
+
+/* Add backdrop blur utilities */
+.backdrop-blur-theme {
+	backdrop-filter: blur(8px);
+}
+
+/* Add hover states */
+.hover\:bg-theme-primary:hover {
+	background-color: var(--color-primary);
+}
+
+.hover\:border-theme-primary:hover {
+	border-color: var(--color-primary);
+}
+
+/* Add transitions */
+.transition-theme {
+	transition: all 0.3s ease;
+}
+
+:root {
+	/* UI Experience Variables */
+	--blur-strength: 12px;
+	--blur-strength-strong: 16px;
+	--surface-opacity: 0.95;
+	--surface-opacity-strong: 0.98;
+	--shadow-strength: 0.05;
+	--shadow-strength-strong: 0.1;
+	--animation-speed: 0.3s;
+	--border-radius: 0.5rem;
+	--font-family: "Inter", sans-serif;
+	--content-width: 1280px;
+	--spacing-base: 1rem;
+
+	/* Glass Effect Variables */
+	--glass-background: radial-gradient(
+		circle at center,
+		rgba(var(--color-surface-rgb), 0.85) 0%,
+		rgba(var(--color-surface-rgb), 0.95) 50%,
+		rgba(var(--color-surface-rgb), 0.98) 100%
+	);
+	--glass-background-strong: radial-gradient(
+		circle at center,
+		rgba(var(--color-surface-rgb), 0.9) 0%,
+		rgba(var(--color-surface-rgb), 0.97) 50%,
+		rgba(var(--color-surface-rgb), 1) 100%
+	);
+	--glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, var(--shadow-strength));
+	--glass-shadow-strong: 0 8px 12px -2px rgba(0, 0, 0, var(--shadow-strength-strong));
+}
+
+/* Update glass effects */
+.glass-effect {
+	background: var(--glass-background);
+	backdrop-filter: blur(var(--blur-strength));
+	-webkit-backdrop-filter: blur(var(--blur-strength));
+	box-shadow: var(--glass-shadow);
+	border-radius: var(--border-radius);
+	transition: all var(--animation-speed) ease;
+}
+
+.glass-effect-strong {
+	background: var(--glass-background-strong);
+	backdrop-filter: blur(var(--blur-strength-strong));
+	-webkit-backdrop-filter: blur(var(--blur-strength-strong));
+	box-shadow: var(--glass-shadow-strong);
+	border-radius: var(--border-radius);
+	transition: all var(--animation-speed) ease;
+}
+
+/* Add container effect */
+.container-glass {
+	background: var(--glass-background);
+	backdrop-filter: blur(var(--blur-strength));
+	-webkit-backdrop-filter: blur(var(--blur-strength));
+	border-radius: var(--border-radius);
+	padding: var(--spacing-base);
 }

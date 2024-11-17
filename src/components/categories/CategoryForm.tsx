@@ -2,7 +2,9 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TwitterPicker } from "react-color";
+import { motion } from "framer-motion";
 import { CategoryFormData } from "../../types/inventory";
+import { useUI } from "../../contexts/UIContext";
 import { z } from "zod";
 
 // Category form schema
@@ -35,6 +37,7 @@ function CategoryForm({
 	initialData,
 	isSubmitting,
 }: CategoryFormProps) {
+	const { animations, animationSpeed, compactMode } = useUI();
 	const {
 		register,
 		handleSubmit,
@@ -58,9 +61,16 @@ function CategoryForm({
 	};
 
 	return (
-		<form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+		<form
+			onSubmit={handleSubmit(onSubmit)}
+			className={`space-y-${compactMode ? "4" : "6"}`}
+		>
 			{/* Name */}
-			<div>
+			<motion.div
+				initial={animations ? { opacity: 0, y: 20 } : undefined}
+				animate={animations ? { opacity: 1, y: 0 } : undefined}
+				transition={{ duration: animationSpeed / 1000 }}
+			>
 				<label
 					htmlFor="name"
 					className="block text-sm font-medium text-textPrimary mb-1"
@@ -71,16 +81,20 @@ function CategoryForm({
 					type="text"
 					id="name"
 					{...register("name")}
-					className="w-full px-4 py-2 bg-background border border-border rounded-lg text-textPrimary focus:outline-none focus:border-primary transition-colors"
+					className="w-full px-4 py-2 bg-background/50 backdrop-blur-[var(--blur-strength)] border border-border rounded-lg text-textPrimary focus:outline-none focus:border-primary transition-colors"
 					placeholder="Enter category name"
 				/>
 				{errors.name && (
 					<p className="mt-1 text-sm text-error">{errors.name.message}</p>
 				)}
-			</div>
+			</motion.div>
 
 			{/* Description */}
-			<div>
+			<motion.div
+				initial={animations ? { opacity: 0, y: 20 } : undefined}
+				animate={animations ? { opacity: 1, y: 0 } : undefined}
+				transition={{ duration: animationSpeed / 1000, delay: 0.1 }}
+			>
 				<label
 					htmlFor="description"
 					className="block text-sm font-medium text-textPrimary mb-1"
@@ -91,13 +105,17 @@ function CategoryForm({
 					id="description"
 					{...register("description")}
 					rows={3}
-					className="w-full px-4 py-2 bg-background border border-border rounded-lg text-textPrimary focus:outline-none focus:border-primary transition-colors"
+					className="w-full px-4 py-2 bg-background/50 backdrop-blur-[var(--blur-strength)] border border-border rounded-lg text-textPrimary focus:outline-none focus:border-primary transition-colors"
 					placeholder="Enter category description (optional)"
 				/>
-			</div>
+			</motion.div>
 
 			{/* Color Picker */}
-			<div>
+			<motion.div
+				initial={animations ? { opacity: 0, y: 20 } : undefined}
+				animate={animations ? { opacity: 1, y: 0 } : undefined}
+				transition={{ duration: animationSpeed / 1000, delay: 0.2 }}
+			>
 				<label className="block text-sm font-medium text-textPrimary mb-3">
 					Color
 				</label>
@@ -116,6 +134,7 @@ function CategoryForm({
 								card: {
 									backgroundColor: "var(--color-surface)",
 									border: "1px solid var(--color-border)",
+									backdropFilter: "blur(var(--blur-strength))",
 								},
 								input: {
 									backgroundColor: "var(--color-background)",
@@ -129,10 +148,14 @@ function CategoryForm({
 				{errors.color && (
 					<p className="mt-1 text-sm text-error">{errors.color.message}</p>
 				)}
-			</div>
+			</motion.div>
 
 			{/* Is Folder Checkbox */}
-			<div>
+			<motion.div
+				initial={animations ? { opacity: 0, y: 20 } : undefined}
+				animate={animations ? { opacity: 1, y: 0 } : undefined}
+				transition={{ duration: animationSpeed / 1000, delay: 0.3 }}
+			>
 				<label className="flex items-center">
 					<input
 						type="checkbox"
@@ -141,10 +164,15 @@ function CategoryForm({
 					/>
 					<span className="ml-2 text-sm text-textPrimary">Is Folder</span>
 				</label>
-			</div>
+			</motion.div>
 
 			{/* Submit Button */}
-			<div className="flex justify-end">
+			<motion.div
+				initial={animations ? { opacity: 0, y: 20 } : undefined}
+				animate={animations ? { opacity: 1, y: 0 } : undefined}
+				transition={{ duration: animationSpeed / 1000, delay: 0.4 }}
+				className="flex justify-end"
+			>
 				<button
 					type="submit"
 					disabled={isSubmitting}
@@ -152,7 +180,7 @@ function CategoryForm({
 				>
 					{isSubmitting ? "Saving..." : "Save Category"}
 				</button>
-			</div>
+			</motion.div>
 		</form>
 	);
 }

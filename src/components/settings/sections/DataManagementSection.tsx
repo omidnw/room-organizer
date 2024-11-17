@@ -3,9 +3,11 @@ import { motion } from "framer-motion";
 import { Download, Upload, AlertCircle, Trash2 } from "lucide-react";
 import { dbHelpers } from "../../../utils/db/operations";
 import { useNotification } from "../../../contexts/NotificationContext";
+import { useUI } from "../../../contexts/UIContext";
 import Modal from "../../ui/Modal";
 
 function DataManagementSection() {
+	const { animations, animationSpeed, compactMode } = useUI();
 	const [isExporting, setIsExporting] = useState(false);
 	const [isImporting, setIsImporting] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
@@ -99,21 +101,31 @@ function DataManagementSection() {
 	};
 
 	return (
-		<div className="space-y-6">
-			<div>
-				<h3 className="text-lg font-semibold text-textPrimary">
+		<div className={`space-y-${compactMode ? "6" : "8"}`}>
+			<motion.div
+				initial={animations ? { opacity: 0, y: 20 } : undefined}
+				animate={animations ? { opacity: 1, y: 0 } : undefined}
+				transition={{ duration: animationSpeed / 1000 }}
+				className={`glass-effect ${compactMode ? "p-4" : "p-6"} rounded-lg`}
+			>
+				<h3
+					className={`${compactMode ? "text-lg" : "text-xl"} font-semibold text-textPrimary`}
+				>
 					Data Management
 				</h3>
 				<p className="text-sm text-textSecondary">
 					Backup and restore your data
 				</p>
-			</div>
+			</motion.div>
 
-			<div className="space-y-4">
+			<div className={`space-y-${compactMode ? "3" : "4"}`}>
 				{/* Export Data */}
 				<motion.div
-					whileHover={{ scale: 1.01 }}
-					className="p-4 rounded-lg border border-border bg-surface"
+					initial={animations ? { opacity: 0, y: 20 } : undefined}
+					animate={animations ? { opacity: 1, y: 0 } : undefined}
+					transition={{ duration: animationSpeed / 1000, delay: 0.1 }}
+					whileHover={animations ? { scale: 1.01 } : undefined}
+					className={`${compactMode ? "p-3" : "p-4"} rounded-lg border border-border bg-background/50 backdrop-blur-[var(--blur-strength)]`}
 				>
 					<div className="flex items-start justify-between">
 						<div className="space-y-1">
@@ -135,8 +147,11 @@ function DataManagementSection() {
 
 				{/* Import Data */}
 				<motion.div
-					whileHover={{ scale: 1.01 }}
-					className="p-4 rounded-lg border border-border bg-surface"
+					initial={animations ? { opacity: 0, y: 20 } : undefined}
+					animate={animations ? { opacity: 1, y: 0 } : undefined}
+					transition={{ duration: animationSpeed / 1000, delay: 0.2 }}
+					whileHover={animations ? { scale: 1.01 } : undefined}
+					className={`${compactMode ? "p-3" : "p-4"} rounded-lg border border-border bg-background/50 backdrop-blur-[var(--blur-strength)]`}
 				>
 					<div className="flex items-start justify-between">
 						<div className="space-y-1">
@@ -197,8 +212,11 @@ function DataManagementSection() {
 
 				{/* Delete Database */}
 				<motion.div
-					whileHover={{ scale: 1.01 }}
-					className="p-4 rounded-lg border border-error/20 bg-error/5"
+					initial={animations ? { opacity: 0, y: 20 } : undefined}
+					animate={animations ? { opacity: 1, y: 0 } : undefined}
+					transition={{ duration: animationSpeed / 1000, delay: 0.3 }}
+					whileHover={animations ? { scale: 1.01 } : undefined}
+					className={`${compactMode ? "p-3" : "p-4"} rounded-lg border border-error/20 bg-error/5`}
 				>
 					<div className="flex items-start justify-between">
 						<div className="space-y-1">

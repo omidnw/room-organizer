@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Bell, ArrowRight } from "lucide-react";
 import { useNotification } from "../../../contexts/NotificationContext";
+import { useUI } from "../../../contexts/UIContext";
 import type { NotificationPosition } from "../../ui/Notification";
 
 const positions: {
@@ -40,6 +41,7 @@ const testNotifications = [
 
 function NotificationSection() {
 	const { position, setPosition, showNotification } = useNotification();
+	const { animations, animationSpeed, compactMode } = useUI();
 
 	const handlePositionChange = (newPosition: NotificationPosition) => {
 		setPosition(newPosition);
@@ -50,25 +52,34 @@ function NotificationSection() {
 	};
 
 	return (
-		<div className="space-y-6">
-			<div>
+		<div className={`space-y-${compactMode ? "4" : "6"}`}>
+			<motion.div
+				initial={animations ? { opacity: 0, y: 20 } : undefined}
+				animate={animations ? { opacity: 1, y: 0 } : undefined}
+				transition={{ duration: animationSpeed / 1000 }}
+			>
 				<h3 className="text-lg font-semibold text-textPrimary">
 					Notifications
 				</h3>
 				<p className="text-sm text-textSecondary">
 					Configure notification settings
 				</p>
-			</div>
+			</motion.div>
 
 			{/* Position Selection */}
-			<div className="space-y-4">
+			<motion.div
+				initial={animations ? { opacity: 0, y: 20 } : undefined}
+				animate={animations ? { opacity: 1, y: 0 } : undefined}
+				transition={{ duration: animationSpeed / 1000, delay: 0.1 }}
+				className={`glass-effect ${compactMode ? "p-4" : "p-6"} rounded-lg border border-border space-y-4`}
+			>
 				<h4 className="text-sm font-medium text-textPrimary">Position</h4>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					{positions.map(({ value, label, description }) => (
 						<motion.button
 							key={value}
-							whileHover={{ scale: 1.02 }}
-							whileTap={{ scale: 0.98 }}
+							whileHover={animations ? { scale: 1.02 } : undefined}
+							whileTap={animations ? { scale: 0.98 } : undefined}
 							onClick={() => handlePositionChange(value)}
 							className={`flex items-center p-4 rounded-lg border transition-all ${
 								position === value
@@ -82,18 +93,23 @@ function NotificationSection() {
 							</div>
 							{position === value && (
 								<motion.div
-									initial={{ scale: 0 }}
-									animate={{ scale: 1 }}
+									initial={animations ? { scale: 0 } : undefined}
+									animate={animations ? { scale: 1 } : undefined}
 									className="w-2 h-2 rounded-full bg-primary"
 								/>
 							)}
 						</motion.button>
 					))}
 				</div>
-			</div>
+			</motion.div>
 
 			{/* Test Notifications */}
-			<div className="space-y-4">
+			<motion.div
+				initial={animations ? { opacity: 0, y: 20 } : undefined}
+				animate={animations ? { opacity: 1, y: 0 } : undefined}
+				transition={{ duration: animationSpeed / 1000, delay: 0.2 }}
+				className={`glass-effect ${compactMode ? "p-4" : "p-6"} rounded-lg border border-border space-y-4`}
+			>
 				<h4 className="text-sm font-medium text-textPrimary">
 					Test Notifications
 				</h4>
@@ -101,8 +117,8 @@ function NotificationSection() {
 					{testNotifications.map(({ type, message }) => (
 						<motion.button
 							key={type}
-							whileHover={{ scale: 1.02 }}
-							whileTap={{ scale: 0.98 }}
+							whileHover={animations ? { scale: 1.02 } : undefined}
+							whileTap={animations ? { scale: 0.98 } : undefined}
 							onClick={() => showNotification(type, message)}
 							className="flex items-center justify-between p-4 rounded-lg border border-border hover:border-primary group transition-all"
 						>
@@ -116,7 +132,7 @@ function NotificationSection() {
 						</motion.button>
 					))}
 				</div>
-			</div>
+			</motion.div>
 		</div>
 	);
 }

@@ -4,34 +4,49 @@ import { Shield, Lock, Eye, Database } from "lucide-react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Card from "../components/ui/Card";
+import { useUI } from "../contexts/UIContext";
 
 function Privacy() {
+	const { compactMode } = useUI();
+
 	return (
-		<div className="flex flex-col min-h-screen bg-background">
+		<div className="flex flex-col min-h-screen">
 			<Header />
-			<main className="flex-grow p-8 mt-16">
-				<div className="max-w-4xl mx-auto">
+			<main className={`flex-grow ${compactMode ? "p-4" : "p-8"} mt-16`}>
+				<div
+					className={`max-w-4xl mx-auto container-glass ${compactMode ? "space-y-6" : "space-y-10"}`}
+				>
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
-						className="space-y-8"
+						className={`glass-effect ${compactMode ? "p-4" : "p-6"} rounded-lg`}
 					>
-						<div>
-							<h1 className="text-3xl font-bold text-textPrimary mb-2">
-								Privacy Policy
-							</h1>
-							<p className="text-textSecondary">
-								Last updated: {new Date().toLocaleDateString()}
-							</p>
-						</div>
+						<h1
+							className={`${compactMode ? "text-2xl" : "text-3xl"} font-bold text-textPrimary mb-2`}
+						>
+							Privacy Policy
+						</h1>
+						<p className="text-textSecondary">
+							Last updated: {new Date().toLocaleDateString()}
+						</p>
+					</motion.div>
 
-						<Card className="p-6 space-y-6">
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.1 }}
+					>
+						<Card
+							className={`glass-effect ${compactMode ? "p-4" : "p-6"} space-y-6`}
+						>
 							<section className="space-y-4">
 								<div className="flex items-center space-x-3">
 									<div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
 										<Database className="w-5 h-5 text-primary" />
 									</div>
-									<h2 className="text-xl font-semibold text-textPrimary">
+									<h2
+										className={`${compactMode ? "text-lg" : "text-xl"} font-semibold text-textPrimary`}
+									>
 										Data Storage
 									</h2>
 								</div>
@@ -47,7 +62,9 @@ function Privacy() {
 									<div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
 										<Lock className="w-5 h-5 text-primary" />
 									</div>
-									<h2 className="text-xl font-semibold text-textPrimary">
+									<h2
+										className={`${compactMode ? "text-lg" : "text-xl"} font-semibold text-textPrimary`}
+									>
 										Data Security
 									</h2>
 								</div>
@@ -63,7 +80,9 @@ function Privacy() {
 									<div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
 										<Eye className="w-5 h-5 text-primary" />
 									</div>
-									<h2 className="text-xl font-semibold text-textPrimary">
+									<h2
+										className={`${compactMode ? "text-lg" : "text-xl"} font-semibold text-textPrimary`}
+									>
 										Data Access
 									</h2>
 								</div>
@@ -79,7 +98,9 @@ function Privacy() {
 									<div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
 										<Shield className="w-5 h-5 text-primary" />
 									</div>
-									<h2 className="text-xl font-semibold text-textPrimary">
+									<h2
+										className={`${compactMode ? "text-lg" : "text-xl"} font-semibold text-textPrimary`}
+									>
 										Your Rights
 									</h2>
 								</div>

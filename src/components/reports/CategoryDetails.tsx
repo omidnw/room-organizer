@@ -14,6 +14,7 @@ import { Package, Folder, ChevronRight, Search, X } from "lucide-react";
 import { Category, Item } from "../../types/inventory";
 import Card from "../ui/Card";
 import Loading from "../ui/Loading";
+import { useUI } from "../../contexts/UIContext";
 
 ChartJS.register(
 	CategoryScale,
@@ -49,6 +50,8 @@ function CategoryDetails({
 	onBackClick,
 	isLoading = false,
 }: CategoryDetailsProps) {
+	const { animations, animationSpeed, compactMode } = useUI();
+
 	const getItemCount = (categoryId: string) => itemCounts[categoryId] || 0;
 	const getSubCategoryCount = (categoryId: string) =>
 		subCategoryCounts[categoryId] || 0;
@@ -64,11 +67,11 @@ function CategoryDetails({
 			{
 				label: "Items",
 				data: categories.map((category) => getItemCount(category.id)),
-				backgroundColor: categories.map(
-					(category) => `${category.color}40` || "rgba(75, 192, 192, 0.2)"
+				backgroundColor: categories.map((category) =>
+					category.color ? `${category.color}40` : "rgba(75, 192, 192, 0.2)"
 				),
-				borderColor: categories.map(
-					(category) => category.color || "rgba(75, 192, 192, 1)"
+				borderColor: categories.map((category) =>
+					category.color ? category.color : "rgba(75, 192, 192, 1)"
 				),
 				borderWidth: 1,
 			},
@@ -83,7 +86,7 @@ function CategoryDetails({
 			},
 			tooltip: {
 				callbacks: {
-					label: function (context: any) {
+					label: function (context: { dataIndex: number }) {
 						const categoryIndex = context.dataIndex;
 						const category = categories[categoryIndex];
 						return [
@@ -94,7 +97,7 @@ function CategoryDetails({
 				},
 			},
 		},
-		onClick: (_event: any, elements: any[]) => {
+		onClick: (_event: MouseEvent, elements: { index: number }[]) => {
 			if (elements.length > 0) {
 				const index = elements[0].index;
 				const selectedCategory = categories[index];
@@ -112,43 +115,56 @@ function CategoryDetails({
 	}
 
 	return (
-		<div className="space-y-6">
+		<div className={`space-y-${compactMode ? "4" : "6"}`}>
 			{/* Search Bar */}
-			<Card className="relative">
-				<div className="flex items-center">
-					<Search className="w-5 h-5 text-textSecondary absolute left-4" />
-					<input
-						type="text"
-						value={search}
-						onChange={(e) => onSearchChange(e.target.value)}
-						placeholder="Search all categories..."
-						className="w-full pl-12 pr-4 py-3 bg-background border border-border rounded-lg text-textPrimary focus:outline-none focus:border-primary transition-colors"
-					/>
-					{search && (
-						<button
-							onClick={() => onSearchChange("")}
-							className="absolute right-4 p-1 hover:bg-surface rounded-full"
-						>
-							<X className="w-4 h-4 text-textSecondary" />
-						</button>
-					)}
-				</div>
-			</Card>
+			<motion.div
+				initial={animations ? { opacity: 0, y: 20 } : undefined}
+				animate={animations ? { opacity: 1, y: 0 } : undefined}
+				transition={{ duration: animationSpeed / 1000 }}
+			>
+				<Card className="relative">
+					<div className="flex items-center">
+						<Search className="w-5 h-5 text-textSecondary absolute left-4" />
+						<input
+							type="text"
+							value={search}
+							onChange={(e) => onSearchChange(e.target.value)}
+							placeholder="Search all categories..."
+							className={`w-full pl-12 pr-4 ${compactMode ? "py-2" : "py-3"} bg-background/50 backdrop-blur-[var(--blur-strength)] border border-border rounded-lg text-textPrimary focus:outline-none focus:border-primary transition-colors`}
+						/>
+						{search && (
+							<button
+								onClick={() => onSearchChange("")}
+								className="absolute right-4 p-1 hover:bg-surface rounded-full"
+							>
+								<X className="w-4 h-4 text-textSecondary" />
+							</button>
+						)}
+					</div>
+				</Card>
+			</motion.div>
 
 			<AnimatePresence mode="wait">
 				{!currentCategory ? (
 					/* Category List */
 					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: -20 }}
+						initial={animations ? { opacity: 0, y: 20 } : undefined}
+						animate={animations ? { opacity: 1, y: 0 } : undefined}
+						exit={animations ? { opacity: 0, y: -20 } : undefined}
+						transition={{ duration: animationSpeed / 1000 }}
 						className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
 					>
-						{categories.map((category) => (
+						{categories.map((category, index) => (
 							<motion.div
 								key={category.id}
-								whileHover={{ scale: 1.02 }}
-								whileTap={{ scale: 0.98 }}
+								initial={animations ? { opacity: 0, y: 20 } : undefined}
+								animate={animations ? { opacity: 1, y: 0 } : undefined}
+								transition={{
+									delay: index * 0.1,
+									duration: animationSpeed / 1000,
+								}}
+								whileHover={animations ? { scale: 1.02 } : undefined}
+								whileTap={animations ? { scale: 0.98 } : undefined}
 							>
 								<Card
 									className="cursor-pointer hover:border-primary transition-colors"
@@ -158,7 +174,9 @@ function CategoryDetails({
 									}}
 									data-category-id={category.id}
 								>
-									<div className="flex items-center justify-between p-4">
+									<div
+										className={`flex items-center justify-between ${compactMode ? "p-3" : "p-4"}`}
+									>
 										<div className="flex items-center space-x-3">
 											<div
 												className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -189,23 +207,34 @@ function CategoryDetails({
 				) : (
 					/* Category Details View */
 					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: -20 }}
-						className="space-y-6"
+						initial={animations ? { opacity: 0, y: 20 } : undefined}
+						animate={animations ? { opacity: 1, y: 0 } : undefined}
+						exit={animations ? { opacity: 0, y: -20 } : undefined}
+						transition={{ duration: animationSpeed / 1000 }}
+						className={`space-y-${compactMode ? "4" : "6"}`}
 					>
 						{/* Subcategories */}
 						{categories.length > 0 && (
 							<Card>
-								<div className="p-6">
-									<h3 className="text-lg font-semibold mb-4">Subcategories</h3>
+								<div className={`${compactMode ? "p-4" : "p-6"}`}>
+									<h3
+										className={`${compactMode ? "text-base" : "text-lg"} font-semibold mb-4`}
+									>
+										Subcategories
+									</h3>
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										{categories.map((category) => (
+										{categories.map((category, index) => (
 											<motion.div
 												key={category.id}
-												whileHover={{ scale: 1.02 }}
-												whileTap={{ scale: 0.98 }}
-												className="flex items-center justify-between p-4 bg-background rounded-lg cursor-pointer hover:bg-surface transition-colors"
+												initial={animations ? { opacity: 0, y: 20 } : undefined}
+												animate={animations ? { opacity: 1, y: 0 } : undefined}
+												transition={{
+													delay: index * 0.1,
+													duration: animationSpeed / 1000,
+												}}
+												whileHover={animations ? { scale: 1.02 } : undefined}
+												whileTap={animations ? { scale: 0.98 } : undefined}
+												className={`flex items-center justify-between ${compactMode ? "p-3" : "p-4"} bg-background/50 backdrop-blur-[var(--blur-strength)] rounded-lg cursor-pointer hover:bg-surface transition-colors`}
 												onClick={() => {
 													console.log("Clicking subcategory:", category);
 													handleCategoryClick(category);
@@ -243,8 +272,10 @@ function CategoryDetails({
 
 						{/* Chart */}
 						<Card>
-							<div className="p-6">
-								<h3 className="text-lg font-semibold mb-4">
+							<div className={`${compactMode ? "p-4" : "p-6"}`}>
+								<h3
+									className={`${compactMode ? "text-base" : "text-lg"} font-semibold mb-4`}
+								>
 									Items Distribution
 								</h3>
 								<Bar data={chartData} options={chartOptions} />
@@ -254,18 +285,30 @@ function CategoryDetails({
 						{/* Items */}
 						{items.length > 0 && (
 							<Card>
-								<div className="p-6">
-									<h3 className="text-lg font-semibold mb-4">
+								<div className={`${compactMode ? "p-4" : "p-6"}`}>
+									<h3
+										className={`${compactMode ? "text-base" : "text-lg"} font-semibold mb-4`}
+									>
 										Items in {currentCategory?.name}
 									</h3>
 									<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 										{items
 											.filter((item) => item.categoryId === currentCategory?.id)
-											.map((item) => (
+											.map((item, index) => (
 												<motion.div
 													key={item.id}
-													whileHover={{ scale: 1.02 }}
-													className="p-4 bg-background rounded-lg border border-border hover:border-primary transition-colors"
+													initial={
+														animations ? { opacity: 0, y: 20 } : undefined
+													}
+													animate={
+														animations ? { opacity: 1, y: 0 } : undefined
+													}
+													transition={{
+														delay: index * 0.1,
+														duration: animationSpeed / 1000,
+													}}
+													whileHover={animations ? { scale: 1.02 } : undefined}
+													className={`${compactMode ? "p-3" : "p-4"} bg-background/50 backdrop-blur-[var(--blur-strength)] rounded-lg border border-border hover:border-primary transition-colors`}
 												>
 													<div className="flex items-center justify-between mb-2">
 														<h4 className="font-medium text-textPrimary">
@@ -299,10 +342,10 @@ function CategoryDetails({
 
 						{/* Back Button */}
 						<motion.button
-							whileHover={{ scale: 1.02 }}
-							whileTap={{ scale: 0.98 }}
+							whileHover={animations ? { scale: 1.02 } : undefined}
+							whileTap={animations ? { scale: 0.98 } : undefined}
 							onClick={() => onCategorySelect(null)}
-							className="w-full p-4 bg-surface border border-border rounded-lg text-textPrimary hover:border-primary transition-colors"
+							className={`w-full ${compactMode ? "p-3" : "p-4"} bg-background/50 backdrop-blur-[var(--blur-strength)] border border-border rounded-lg text-textPrimary hover:border-primary transition-colors`}
 						>
 							Back to Categories
 						</motion.button>

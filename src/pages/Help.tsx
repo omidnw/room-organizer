@@ -16,28 +16,39 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import HelpSection from "../components/help/HelpSection";
 import FAQItem from "../components/help/FAQItem";
+import { useUI } from "../contexts/UIContext";
 
 function Help() {
-	return (
-		<div className="flex flex-col min-h-screen bg-background">
-			<Header />
-			<main className="flex-grow p-8 mt-16">
-				<div className="max-w-4xl mx-auto">
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						className="space-y-8"
-					>
-						<div>
-							<h1 className="text-3xl font-bold text-textPrimary mb-2">
-								Help Center
-							</h1>
-							<p className="text-textSecondary">
-								Find answers to common questions and learn how to use Room
-								Organizer
-							</p>
-						</div>
+	const { animations, animationSpeed, compactMode } = useUI();
 
+	return (
+		<div className="flex flex-col min-h-screen">
+			<Header />
+			<main className={`flex-grow ${compactMode ? "p-4" : "p-8"} mt-16`}>
+				<div
+					className={`max-w-4xl mx-auto container-glass ${compactMode ? "space-y-6" : "space-y-10"}`}
+				>
+					<motion.div
+						initial={animations ? { opacity: 0, y: 20 } : false}
+						animate={animations ? { opacity: 1, y: 0 } : false}
+						transition={{ duration: animationSpeed / 1000 }}
+						className={`glass-effect ${compactMode ? "p-4" : "p-6"} rounded-lg`}
+					>
+						<h1 className={`${compactMode ? "text-2xl" : "text-3xl"} font-bold text-textPrimary mb-2`}>
+							Help Center
+						</h1>
+						<p className={`text-textSecondary ${compactMode ? "text-base" : "text-lg"}`}>
+							Find answers to common questions and learn how to use Room
+							Organizer
+						</p>
+					</motion.div>
+
+					<motion.div
+						initial={animations ? { opacity: 0, y: 20 } : false}
+						animate={animations ? { opacity: 1, y: 0 } : false}
+						transition={{ duration: animationSpeed / 1000 }}
+						className={`space-y-${compactMode ? "6" : "8"}`}
+					>
 						<HelpSection
 							title="Getting Started"
 							description="Learn the basics of Room Organizer"

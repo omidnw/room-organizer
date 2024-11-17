@@ -3,9 +3,9 @@ import { motion } from "framer-motion";
 import { Globe, DollarSign } from "lucide-react";
 import { settingsOperations } from "../../../utils/db/settings";
 import { useNotification } from "../../../contexts/NotificationContext";
+import { useUI } from "../../../contexts/UIContext";
 import currencyCodes from "currency-codes";
 import { countries } from "countries-list";
-import { zonedTimeToUtc } from "date-fns-tz";
 import Select from "../../ui/Select";
 
 // Get all available timezones
@@ -15,13 +15,14 @@ const timezones = Intl.supportedValuesOf("timeZone");
 const currencies = currencyCodes.data.map((currency) => ({
 	code: currency.code,
 	name: currency.currency,
-	symbol: currency.symbol || currency.code,
+	symbol: currency.code,
 	countries: currency.countries?.[0]
 		? countries[currency.countries[0]]?.name || currency.countries[0]
 		: undefined,
 }));
 
 function LocalizationSection() {
+	const { animations, animationSpeed, compactMode } = useUI();
 	const [timezone, setTimezone] = useState("");
 	const [currency, setCurrency] = useState("");
 	const [isLoading, setIsLoading] = useState(true);
@@ -94,17 +95,27 @@ function LocalizationSection() {
 	}
 
 	return (
-		<div className="space-y-6">
-			<div>
+		<div className={`space-y-${compactMode ? "4" : "6"}`}>
+			<motion.div
+				initial={animations ? { opacity: 0, y: 20 } : undefined}
+				animate={animations ? { opacity: 1, y: 0 } : undefined}
+				transition={{ duration: animationSpeed / 1000 }}
+				className="glass-effect"
+			>
 				<h3 className="text-lg font-semibold text-textPrimary">Localization</h3>
 				<p className="text-sm text-textSecondary">
 					Configure your regional preferences
 				</p>
-			</div>
+			</motion.div>
 
-			<div className="space-y-6">
+			<div className={`space-y-${compactMode ? "4" : "6"}`}>
 				{/* Timezone Settings */}
-				<div className="space-y-4">
+				<motion.div
+					initial={animations ? { opacity: 0, y: 20 } : undefined}
+					animate={animations ? { opacity: 1, y: 0 } : undefined}
+					transition={{ duration: animationSpeed / 1000, delay: 0.1 }}
+					className="space-y-4"
+				>
 					<Select
 						id="timezone"
 						label="Timezone"
@@ -118,10 +129,15 @@ function LocalizationSection() {
 						Current time:{" "}
 						{new Date().toLocaleTimeString(undefined, { timeZone: timezone })}
 					</p>
-				</div>
+				</motion.div>
 
 				{/* Currency Settings */}
-				<div className="space-y-4">
+				<motion.div
+					initial={animations ? { opacity: 0, y: 20 } : undefined}
+					animate={animations ? { opacity: 1, y: 0 } : undefined}
+					transition={{ duration: animationSpeed / 1000, delay: 0.2 }}
+					className="space-y-4"
+				>
 					<Select
 						id="currency"
 						label="Currency"
@@ -131,13 +147,14 @@ function LocalizationSection() {
 						icon={DollarSign}
 						placeholder="Select currency"
 					/>
-				</div>
+				</motion.div>
 
 				{/* Preview */}
 				<motion.div
-					initial={{ opacity: 0 }}
-					animate={{ opacity: 1 }}
-					className="p-4 bg-surface rounded-lg border border-border"
+					initial={animations ? { opacity: 0, y: 20 } : undefined}
+					animate={animations ? { opacity: 1, y: 0 } : undefined}
+					transition={{ duration: animationSpeed / 1000, delay: 0.3 }}
+					className={`glass-effect ${compactMode ? "p-4" : "p-6"} rounded-lg border border-border`}
 				>
 					<h4 className="text-sm font-medium text-textPrimary mb-4">Preview</h4>
 					<div className="space-y-3">

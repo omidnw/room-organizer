@@ -17,6 +17,9 @@ import NotificationSection from "../components/settings/sections/NotificationSec
 import AppearanceSection from "../components/settings/sections/AppearanceSection";
 import LocalizationSection from "../components/settings/sections/LocalizationSection";
 import DataManagementSection from "../components/settings/sections/DataManagementSection";
+import { useTheme } from "../contexts/ThemeContext";
+import { getBackgroundsForTheme } from "../config/backgrounds";
+import { useUI } from "../contexts/UIContext";
 
 type SettingsSection =
 	| "theme"
@@ -80,8 +83,11 @@ function Settings({ defaultSection = "theme" }: SettingsProps) {
 	const location = useLocation();
 	const [activeSection, setActiveSection] =
 		useState<SettingsSection>(defaultSection);
-	const [animations, setAnimations] = useState(true);
-	const [compactMode, setCompactMode] = useState(false);
+	const { animations, compactMode } = useUI();
+	const { currentTheme } = useTheme();
+
+	// Get current theme's background icons for the preview
+	const themeBackgrounds = getBackgroundsForTheme(currentTheme);
 
 	// Update active section based on URL
 	useEffect(() => {
@@ -108,14 +114,7 @@ function Settings({ defaultSection = "theme" }: SettingsProps) {
 			case "notifications":
 				return <NotificationSection />;
 			case "appearance":
-				return (
-					<AppearanceSection
-						animations={animations}
-						setAnimations={setAnimations}
-						compactMode={compactMode}
-						setCompactMode={setCompactMode}
-					/>
-				);
+				return <AppearanceSection />;
 			case "localization":
 				return <LocalizationSection />;
 			case "data":
@@ -126,24 +125,33 @@ function Settings({ defaultSection = "theme" }: SettingsProps) {
 	};
 
 	return (
-		<div className="flex flex-col min-h-screen bg-background">
+		<div className="flex flex-col min-h-screen">
 			<Header />
-			<main className="flex-grow p-8 mt-16">
-				<div className="max-w-6xl mx-auto">
+			<main className={`flex-grow ${compactMode ? "p-4" : "p-8"} mt-16`}>
+				<div
+					className={`max-w-6xl mx-auto container-glass ${compactMode ? "space-y-6" : "space-y-10"}`}
+				>
+					{/* Title Section */}
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
-						className="mb-8"
+						className={`glass-effect ${compactMode ? "p-4" : "p-6"} rounded-lg`}
 					>
-						<h2 className="text-3xl font-bold text-textPrimary mb-2">
+						<h2
+							className={`${compactMode ? "text-2xl" : "text-3xl"} font-bold text-textPrimary mb-2`}
+						>
 							Settings
 						</h2>
-						<p className="text-textSecondary">Customize your experience</p>
+						<p
+							className={`text-textSecondary ${compactMode ? "text-base" : "text-lg"}`}
+						>
+							Customize your experience
+						</p>
 					</motion.div>
 
 					<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
 						{/* Settings Navigation */}
-						<Card className="md:col-span-1 h-fit">
+						<Card className="md:col-span-1 h-fit glass-effect-strong">
 							<nav className="p-2">
 								{settingsTabs.map((tab) => (
 									<motion.button
@@ -153,7 +161,7 @@ function Settings({ defaultSection = "theme" }: SettingsProps) {
 										className={`w-full flex items-center p-3 rounded-lg transition-colors ${
 											activeSection === tab.id
 												? "bg-primary/10 text-primary"
-												: "text-textSecondary hover:text-primary hover:bg-primary/5"
+												: "text-textSecondary hover:text-primary hover:bg-primary/10"
 										}`}
 									>
 										<tab.icon className="w-5 h-5 mr-3" />
@@ -167,7 +175,7 @@ function Settings({ defaultSection = "theme" }: SettingsProps) {
 						</Card>
 
 						{/* Settings Content */}
-						<Card className="md:col-span-3">
+						<Card className="md:col-span-3 glass-effect-strong">
 							<motion.div
 								key={activeSection}
 								initial={{ opacity: 0, x: 20 }}

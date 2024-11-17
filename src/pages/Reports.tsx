@@ -8,8 +8,10 @@ import CategoryDetails from "../components/reports/CategoryDetails";
 import CategoryBreadcrumb from "../components/categories/CategoryBreadcrumb";
 import Loading from "../components/ui/Loading";
 import { useReports } from "../hooks/useReports";
+import { useUI } from "../contexts/UIContext";
 
 function Reports() {
+	const { compactMode } = useUI();
 	const {
 		selectedCategory,
 		categories,
@@ -47,9 +49,9 @@ function Reports() {
 
 	if (isLoading) {
 		return (
-			<div className="flex flex-col min-h-screen bg-background">
+			<div className="flex flex-col min-h-screen">
 				<Header />
-				<main className="flex-grow p-8 mt-16">
+				<main className={`flex-grow ${compactMode ? "p-4" : "p-8"} mt-16`}>
 					<div className="max-w-6xl mx-auto flex items-center justify-center h-full">
 						<Loading size="large" />
 					</div>
@@ -60,11 +62,11 @@ function Reports() {
 	}
 
 	return (
-		<div className="flex flex-col min-h-screen bg-background">
+		<div className="flex flex-col min-h-screen">
 			<Header />
-			<main className="flex-grow p-8 mt-16">
-				<div className="max-w-6xl mx-auto">
-					<div className="flex justify-between items-center mb-8">
+			<main className={`flex-grow ${compactMode ? "p-4" : "p-8"} mt-16`}>
+				<div className={`max-w-6xl mx-auto container-glass ${compactMode ? "space-y-6" : "space-y-10"}`}>
+					<div className={`glass-effect ${compactMode ? "p-4" : "p-6"} rounded-lg`}>
 						<motion.div
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
@@ -85,7 +87,7 @@ function Reports() {
 											<ArrowLeft className="w-6 h-6" />
 										</motion.button>
 									)}
-									<h2 className="text-2xl font-bold text-textPrimary">
+									<h2 className={`${compactMode ? "text-2xl" : "text-3xl"} font-bold text-textPrimary`}>
 										{selectedCategory ? selectedCategory.name : "Reports"}
 									</h2>
 								</div>
@@ -98,7 +100,7 @@ function Reports() {
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ delay: 0.1 }}
-						className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
+						className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${compactMode ? "gap-4" : "gap-6"}`}
 					>
 						<StatBox
 							title={titles.items}
@@ -123,6 +125,7 @@ function Reports() {
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						transition={{ delay: 0.2 }}
+						className={`glass-effect ${compactMode ? "p-4" : "p-6"} rounded-lg`}
 					>
 						{isLoading ? (
 							<div className="flex justify-center py-12">
